@@ -1,0 +1,124 @@
+
+services:
+  freeipa:
+    image: freeipa/freeipa-server:almalinux-10
+    container_name: freeipa-server
+    hostname: ipa.example.test
+    tty: true
+    stdin_open: true
+    
+    privileged: false
+    cap_add:
+      - SYS_ADMIN
+    security_opt:
+      - seccomp=unconfined
+      - apparmor=unconfined
+    
+    cgroup: host
+ 
+    environment:
+      - IPA_SERVER_HOSTNAME=ipa.example.test
+      - PASSWORD=thaitiePh5Haevie0cah
+      - SYSTEMD_SECCOMP=0
+    
+    volumes:
+      - tmatch_freeipa_data:/data:Z
+      - /sys/fs/cgroup:/sys/fs/cgroup:rw
+    
+    tmpfs:
+      - /run
+      - /tmp
+      - /var/lib/journal
+      - /run/lock
+    
+    ports:
+      - "80:80"
+      - "443:443"
+      - "389:389"
+      - "636:636"
+      - "88:88"
+      - "88:88/udp"
+      - "464:464"
+      - "464:464/udp"
+    
+    command:
+      - ipa-server-install
+      - -U
+      - -r
+      - EXAMPLE.TEST
+      - --domain
+      - example.test
+      - --no-ntp
+      - --no-host-dns
+      - --skip-mem-check
+    
+    restart: unless-stopped
+ 
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.5.3
+    container_name: keycloak-server
+    environment:
+      - KC_BOOTSTRAP_ADMIN_USERNAME=admin
+      - KC_BOOTSTRAP_ADMIN_PASSWORD=admin
+      - KC_DB=postgres
+      - KC_DB_URL_HOST=keycloak-db
+      - KC_DB_URL_DATABASE=keycloak
+      - KC_DB_USERNAME=keycloak
+      - KC_DB_PASSWORD=0291040404
+      - KC_HOSTNAME=ipa.example.test
+      - KC_HTTPS_CERTIFICATE_FILE=/opt/keycloak/conf/server.crt
+      - KC_HTTPS_CERTIFICATE_KEY_FILE=/opt/keycloak/conf/server.key
+    volumes:
+      - /srv/tmatch/keycloak/providers:/opt/keycloak/providers
+      - /srv/tmatch/keycloak/themes:/opt/keycloak/themes
+      - ./certs/server.crt:/opt/keycloak/conf/server.crt
+      - ./certs/server.key:/opt/keycloak/conf/server.key
+    ports:
+      - "8080:8080"
+      - "8443:8443"
+    command:
+      - start
+    restart: unless-stopped
+    depends_on:
+      - keycloak-db
+      - freeipa
+
+  keycloak-db:
+    image: postgres:16-alpine
+    container_name: keycloak_db
+    environment:
+      - POSTGRES_DB=keycloak
+      - POSTGRES_USER=keycloak
+      - POSTGRES_PASSWORD=nieM1ui7ak9sheitohsh
+    volumes:
+      - tmatch_keycloak_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  tmatch_db:
+    image: postgres:16-alpine
+    container_name: tmatch_db
+    environment:
+      - POSTGRES_DB=tmatch_db
+      - POSTGRES_USER=tmatch
+      - POSTGRES_PASSWORD=Oochoghahp6ie7aiza9p
+    ports:
+      - "5432:5432"
+    restart: unless-stopped
+    volumes:
+      - tmatch_db_data:/var/lib/postgresql/data
+
+  tmatch_app:
+    build: .
+    container_name: tmatch_app
+    restart: unless-stopped
+    depends_on:
+      - tmatch_db
+      - freeipa
+    volumes:
+      - tmatch_specs_data:/app/specs
+
+volumes:
+  tmatch_specs_data:
+  tmatch_db_data:
+  tmatch_keycloak_data:
+  tmatch_freeipa_data:
