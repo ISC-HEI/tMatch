@@ -5,7 +5,7 @@ from streamlit_star_rating import st_star_rating
 from services.db import get_db
 from utils.nav import protect
 
-protect()
+protect("project")
 
 db = get_db()
 

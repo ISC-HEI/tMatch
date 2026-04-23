@@ -123,9 +123,25 @@ class Db:
                 .all()
             )
 
+    def get_users(self) -> Sequence[User]:
+        with self._conn.session as s:
+            return (
+                s.execute(
+                    select(User)
+                    .join(ProgramMembership, ProgramMembership.user_id == User.id)
+                    .join(Role, Role.id == ProgramMembership.role_id)
+                    .distinct()
+                    )
+                .scalars()
+                .all()
+            )
+
     def get_programs(self) -> Sequence[Program]:
         with self._conn.session as s:
             return s.execute(select(Program)).scalars().all()
+
+    def get_roles(self) -> Sequence[Role]:
+        pass # TODO
 
     def get_user(self, uid: str) -> User:
         with self._conn.session as s:

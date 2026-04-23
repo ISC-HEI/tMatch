@@ -6,7 +6,7 @@ import yaml
 from services.db import get_db
 from utils.nav import protect
 
-protect()
+protect("manage_projects")
 
 db = get_db()
 

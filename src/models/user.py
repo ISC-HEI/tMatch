@@ -26,7 +26,7 @@ class User(Base):
     created_projects: Mapped[list[Project]] = relationship("Project", foreign_keys="Project.created_by", back_populates="creator", lazy="selectin")
     supervised_projects: Mapped[list[Project]] = relationship("Project", foreign_keys="Project.teacher_id", back_populates="teacher", lazy="selectin")
     project_ratings: Mapped[list[ProjectRating]] = relationship("ProjectRating", back_populates="student", lazy="selectin")
-    project: Mapped[Project] = relationship("Project", back_populates="student", lazy="joined")
+    project: Mapped[Project] = relationship("Project", foreign_keys="Project.student_id", back_populates="student", lazy="joined")
 
     def get_role(self, program_id: int) -> Role|None:
         for membership in self.program_memberships:
