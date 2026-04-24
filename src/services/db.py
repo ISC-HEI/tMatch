@@ -141,7 +141,27 @@ class Db:
             return s.execute(select(Program)).scalars().all()
 
     def get_roles(self) -> Sequence[Role]:
-        pass # TODO
+        with self._conn.session as s:
+            return s.execute(select(Role)).scalars().all()
+
+    def update_user_role(self, user_id: int, program_id: int, role_name: str) -> None:
+        with self._conn.session as s:
+            role = s.execute(
+                select(Role).where(Role.name == role_name)
+            ).scalar_one_or_none()
+
+            if role is None:
+                return
+
+            membership = s.execute(
+                select(ProgramMembership)
+                .where(ProgramMembership.user_id == user_id)
+                .where(ProgramMembership.program_id == program_id)
+            ).scalar_one_or_none()
+
+            if membership:
+                membership.role_id = role.id
+                s.commit()
 
     def get_user(self, uid: str) -> User:
         with self._conn.session as s:
