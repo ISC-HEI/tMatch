@@ -1,46 +1,57 @@
 
 import streamlit as st
 
+from models.session import Session
+from models.user import User
 from services.db import get_db
+from utils.nav import project_detail_page, protect
+
+protect("projects")
 
 db = get_db()
 
 projects = db.get_projects()
 projects_number = len(projects)
-
+user: User = st.session_state.user
+session: Session = st.session_state.session
+roles = user.get_roles(session.program_id)
 
 st.title("Projects")
-st.caption(f"Rate each project from 0 (lowest) to {projects_number } (highest). Your scores are private.")
 
-st.divider()
+def render_for_students():
+    st.caption(f"Rate each project from 0 (lowest) to {projects_number } (highest). Your scores are private.")
 
-cols = st.columns([4, 2, 1, 0.8])
-cols[0].markdown("**Project**")
-cols[1].markdown("**Keywords**")
-cols[2].markdown("**Your score**")
+    st.divider()
 
-st.divider()
+    cols = st.columns([4, 2, 0.8])
+    cols[0].markdown("**Project**")
+    cols[1].markdown("**Rating**")
 
-for project in projects:
-    pid = project.id
-    score = st.session_state.ratings.get(pid)
-    cols = st.columns([4, 2, 1, 0.8])
+    st.divider()
 
-    cols[0].write(project.title)
-    cols[1].write(project.projects_keywords)
+    for project in projects:
+        pid = project.id
+        rating = project.get_rating_from(st.session_state.user.id)
+        cols = st.columns([4, 2, 0.8])
 
-    if score is not None:
-        cols[2].markdown(
-            f"<span style='background:#E1F5EE; color:#085041; padding:3px 10px; " +
-            f"border-radius:6px; font-weight:500;'>{score}</span>",
-            unsafe_allow_html=True,
-        )
+        cols[0].write(project.title)
 
-    else:
-        cols[2].markdown(
-            "<span style='color:#9CA3AF;'>—</span>",
-            unsafe_allow_html=True,
+        if rating is not None:
+            cols[1].markdown(
+                f"<span style='background:#E1F5EE; color:#085041; padding:3px 10px; " +
+                f"border-radius:6px; font-weight:500;'>{rating.value}</span>",
+                unsafe_allow_html=True,
             )
 
-    if cols[3].button("Open", key=f"open_{pid}"):
-        st.switch_page("project_detail")
+        else:
+            cols[1].markdown(
+                "<span style='color:#9CA3AF;'>—</span>",
+                unsafe_allow_html=True,
+            )
+
+        if cols[2].button("Open", key=f"open_{pid}"):
+            st.session_state.selected_project = project.id
+            st.switch_page(project_detail_page)
+
+if "student" in roles:
+    render_for_students()

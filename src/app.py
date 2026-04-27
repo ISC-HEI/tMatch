@@ -1,7 +1,7 @@
 
 import streamlit as st
 from services.auth import validate_session
-from utils.nav import PAGE_ROLES
+from utils.nav import PAGE_ROLES, PAGE_CONFIG, landing_page, login_page
 
 st.session_state.session = validate_session()
 
@@ -12,21 +12,6 @@ else:
     st.session_state.user = None
 
 pg = None
-
-login_page = st.Page("views/login.py", title="Login", default=True)
-landing_page = st.Page("views/landing.py", title="Home")
-manage_projects_page = st.Page("views/manage_projects.py", title="Manage Projects")
-manage_users_page = st.Page("views/manage_users.py", title="Manage Users")
-project_detail_page = st.Page("views/project_detail.py", title="View Project Details", visibility="hidden")
-projects_page = st.Page("views/projects.py", title="View Projects List")
-
-pages_config = {
-    "landing": landing_page,
-    "manage_projects": manage_projects_page,
-    "manage_users": manage_users_page,
-    "project_detail": project_detail_page,
-    "projects": projects_page,
-}
 
 user = st.session_state.user
 session = st.session_state.session
@@ -40,7 +25,7 @@ if session and user:
         page_list = [landing_page]
     else:
         page_list = [
-            pages_config[page_name]
+            PAGE_CONFIG[page_name]
             for page_name, allowed_roles in PAGE_ROLES.items()
             if role.name in allowed_roles
         ]

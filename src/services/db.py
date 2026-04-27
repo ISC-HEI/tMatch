@@ -109,6 +109,7 @@ class Db:
         with self._conn.session as s:
             return s.execute(select(Project)).unique().scalars().all()
 
+
     def get_teachers(self) -> Sequence[User]:
         with self._conn.session as s:
             return (
@@ -178,6 +179,12 @@ class Db:
             s.refresh(user)
 
             return user
+
+    def get_project(self, project_id: int) -> Project|None:
+        with self._conn.session as s:
+            return s.execute(
+                select(Project).where(Project.id == project_id)
+            ).scalar_one_or_none()
 
     def get_session(self, sid: str) -> Session | None:
         with self._conn.session as s:
