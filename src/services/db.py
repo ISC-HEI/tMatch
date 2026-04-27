@@ -43,11 +43,10 @@ class Db:
 
             return project
 
-    def create_session(self, user_id: int, program_id: int) -> Session:
+    def create_session(self, user_id: int) -> Session:
         with self._conn.session as s:
             session = Session(
                 user_id=user_id,
-                program_id=program_id,
                 expires_at=datetime.now(timezone.utc) + timedelta(days=7),
             )
 
@@ -57,11 +56,10 @@ class Db:
 
             return session
 
-    def create_auth_token(self, user_id: int, program_id: int) -> AuthToken:
+    def create_auth_token(self, user_id: int) -> AuthToken:
         with self._conn.session as s:
             auth_token = AuthToken(
                 user_id=user_id,
-                program_id=program_id,
                 expires_at=datetime.now(timezone.utc) + timedelta(seconds=30),
             )
 

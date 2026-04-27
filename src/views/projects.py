@@ -1,7 +1,6 @@
 
 import streamlit as st
 
-from models.session import Session
 from models.user import User
 from services.db import get_db
 from utils.nav import project_detail_page, protect
@@ -13,8 +12,7 @@ db = get_db()
 projects = db.get_projects()
 projects_number = len(projects)
 user: User = st.session_state.user
-session: Session = st.session_state.session
-roles = user.get_roles(session.program_id)
+roles = user.get_roles(st.session_state.program_id)
 
 st.title("Projects")
 

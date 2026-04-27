@@ -1,6 +1,8 @@
 
 import streamlit as st
 
+from models.role import Role
+
 login_page = st.Page("views/login.py", title="Login", default=True)
 landing_page = st.Page("views/landing.py", title="Home")
 manage_projects_page = st.Page("views/manage_projects.py", title="Manage Projects")
@@ -17,22 +19,30 @@ PAGE_CONFIG = {
 }
 
 PAGE_ROLES = {
-    "landing": ["program_director", "secretary", "teacher", "student"],
     "manage_projects": ["secretary", "teacher"],
     "manage_users": ["secretary"],
     "project_detail": ["program director", "secretary", "teacher", "student"],
     "projects": ["program director", "secretary", "teacher", "student"]
 }
 
+def allowed(roles: list[Role], allowed_roles: list[str]):
+    for role in roles:
+        if role.name in allowed_roles:
+            return True
+
+    return False
+
 def protect(page_name: str):
-    session = st.session_state.get("session")
     user = st.session_state.get("user")
 
-    if user is None or session is None or session.program_id is None:
-        st.switch_page("views/login.py")
+    if user is None:
+        st.switch_page(login_page)
 
-    role = user.get_role(session.program_id)
+    roles = user.get_roles(st.session_state.program_id)
+
+    if page_name == "landing":
+        return
 
     allowed_roles = PAGE_ROLES.get(page_name, [])
-    if role is None or role.name not in allowed_roles:
-        st.switch_page("views/landing.py")
+    if not allowed(roles, allowed_roles):
+        st.switch_page(landing_page)

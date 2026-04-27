@@ -21,7 +21,7 @@ async def create_session(request: Request):
 
     db.remove(auth_token)
 
-    session = db.create_session(auth_token.user_id, auth_token.program_id)
+    session = db.create_session(auth_token.user_id)
 
     response = RedirectResponse("/")
     response.set_cookie(

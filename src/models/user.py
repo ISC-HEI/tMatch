@@ -28,9 +28,11 @@ class User(Base):
     project_ratings: Mapped[list[ProjectRating]] = relationship("ProjectRating", back_populates="student", lazy="selectin")
     project: Mapped[Project] = relationship("Project", foreign_keys="Project.student_id", back_populates="student", lazy="joined")
 
-    def get_role(self, program_id: int) -> Role|None:
+    def get_roles(self, program_id: int) -> list[Role]:
+        roles = []
+
         for membership in self.program_memberships:
             if membership.program_id == program_id:
-                return membership.role
+                roles.append(membership.role)
 
-        return None
+        return roles

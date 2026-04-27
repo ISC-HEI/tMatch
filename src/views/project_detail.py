@@ -15,10 +15,10 @@ user = st.session_state.user
 projects = db.get_projects()
 projects_number = len(projects)
 
-if "selected_project" not in st.session_state or st.session_state.selected_project is None:
-    project = projects[0]
+if "selected_project" in st.session_state and st.session_state.selected_project is not None and (p := db.get_project(st.session_state.selected_project)):
+    project: Project = p
 else:
-    project: Project = db.get_project(st.session_state.selected_project)
+    project = projects[0]
 
 if "edit_rating" not in st.session_state:
     st.session_state.edit_rating = False

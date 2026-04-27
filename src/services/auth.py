@@ -9,15 +9,15 @@ from services.ldap import authenticate
 
 db = get_db()
 
-def create_session(user: User, program_id: int):
-    auth_token = db.create_auth_token(user.id, program_id)
+def create_session(user: User):
+    auth_token = db.create_auth_token(user.id)
     st.markdown(f'<meta http-equiv="refresh" content="0;url=/auth/create_session?token={auth_token.id}">', unsafe_allow_html=True)
 
 def logout(session: Session) -> None:
     db.remove(session)
 
 
-def login(email: str, password: str, program_id: int) -> User|None:
+def login(email: str, password: str) -> User|None:
     user_infos = authenticate(email, password)
 
     if user_infos is None or user_infos["uid"] is None:
@@ -25,7 +25,7 @@ def login(email: str, password: str, program_id: int) -> User|None:
 
     user = db.get_user(user_infos["uid"])
     
-    create_session(user, program_id)
+    create_session(user)
 
     return user
 
