@@ -10,6 +10,7 @@ if TYPE_CHECKING:
     from models.user import User
     from models.project_rating import ProjectRating
     from models.projects_keyword import ProjectsKeyword
+    from models.program import Program
 
 class Project(Base):
     __tablename__: str = "projects"
@@ -21,12 +22,14 @@ class Project(Base):
     description: Mapped[str] = mapped_column(String, nullable=False)
     specifications: Mapped[str] = mapped_column(String, unique=True, nullable=False)
     student_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=True)
+    program_id: Mapped[int] = mapped_column(ForeignKey("programs.id"), nullable=False)
 
     creator: Mapped[User] = relationship("User", foreign_keys=[created_by], back_populates="created_projects", lazy="joined")
     teacher: Mapped[User] = relationship("User", foreign_keys=[teacher_id], back_populates="supervised_projects", lazy="joined")
     project_ratings: Mapped[list[ProjectRating]] = relationship("ProjectRating", back_populates="project", lazy="selectin")
     projects_keywords: Mapped[list[ProjectsKeyword]] = relationship("ProjectsKeyword", back_populates="project", lazy="selectin")
     student: Mapped[User] = relationship("User", foreign_keys=[student_id], back_populates="project", lazy="joined")
+    program: Mapped[Program] = relationship("Program", foreign_keys=[program_id], back_populates="projects", lazy="joined")
 
     def get_rating_from(self, student_id: int) -> ProjectRating|None:
         for rating in self.project_ratings:

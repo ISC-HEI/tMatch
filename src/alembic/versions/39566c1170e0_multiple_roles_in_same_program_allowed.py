@@ -1,8 +1,8 @@
-"""initial commit
+"""Multiple roles in same program allowed
 
-Revision ID: b6b57c77b776
+Revision ID: 39566c1170e0
 Revises: 
-Create Date: 2026-04-13 09:41:55.218136
+Create Date: 2026-04-27 11:42:18.697419
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = 'b6b57c77b776'
+revision: str = '39566c1170e0'
 down_revision: Union[str, Sequence[str], None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -35,7 +35,8 @@ def upgrade() -> None:
     op.create_table('roles',
     sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
     sa.Column('name', sa.String(), nullable=False),
-    sa.PrimaryKeyConstraint('id')
+    sa.PrimaryKeyConstraint('id'),
+    sa.UniqueConstraint('name')
     )
     op.create_table('users',
     sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
@@ -46,9 +47,7 @@ def upgrade() -> None:
     op.create_table('auth_tokens',
     sa.Column('id', sa.Uuid(), nullable=False),
     sa.Column('user_id', sa.Integer(), nullable=False),
-    sa.Column('program_id', sa.Integer(), nullable=False),
     sa.Column('expires_at', sa.DateTime(timezone=True), nullable=False),
-    sa.ForeignKeyConstraint(['program_id'], ['programs.id'], ),
     sa.ForeignKeyConstraint(['user_id'], ['users.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
@@ -59,7 +58,7 @@ def upgrade() -> None:
     sa.ForeignKeyConstraint(['program_id'], ['programs.id'], ),
     sa.ForeignKeyConstraint(['role_id'], ['roles.id'], ),
     sa.ForeignKeyConstraint(['user_id'], ['users.id'], ),
-    sa.PrimaryKeyConstraint('user_id', 'program_id')
+    sa.PrimaryKeyConstraint('user_id', 'program_id', 'role_id')
     )
     op.create_table('projects',
     sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
@@ -79,9 +78,7 @@ def upgrade() -> None:
     op.create_table('sessions',
     sa.Column('id', sa.Uuid(), nullable=False),
     sa.Column('user_id', sa.Integer(), nullable=False),
-    sa.Column('program_id', sa.Integer(), nullable=False),
     sa.Column('expires_at', sa.DateTime(timezone=True), nullable=False),
-    sa.ForeignKeyConstraint(['program_id'], ['programs.id'], ),
     sa.ForeignKeyConstraint(['user_id'], ['users.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
