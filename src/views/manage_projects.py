@@ -1,6 +1,5 @@
 from pathlib import Path
 import streamlit as st
-import pandas as pd
 import yaml
 
 from services.db import get_db
@@ -60,7 +59,7 @@ with st.form("add_form"):
             st.error("Invalid yaml file, missing required properties !")
 
         else:
-            project = db.create_project(st.session_state.user.id, teacher_id, project_dict["title"], project_dict["description"], f"specs/{specs.name}")
+            project = db.create_project(st.session_state.user.id, teacher_id, project_dict["title"], project_dict["description"], f"specs/{specs.name}", st.session_state.program_id)
 
             if project:
                 st.success("Project created successfully !")
@@ -79,7 +78,7 @@ with st.form("add_form"):
             f.write(specs.getvalue())
 
         project = db.create_project(
-            st.session_state.user.id, teacher_id, title, description, f"specs/{specs.name}"
+            st.session_state.user.id, teacher_id, title, description, f"specs/{specs.name}", st.session_state.program_id
         )
 
         if project:
@@ -93,18 +92,3 @@ with st.form("add_form"):
 
     elif sb and mode == "from file" and ( project_file is None or specs is None ):
         st.error("Missing required inputs !")
-
-projects = db.get_projects()
-
-st.dataframe(
-    pd.DataFrame([
-        {
-            "ID": p.id,
-            "Title": p.title,
-            "Description": p.description,
-            "Teacher": p.teacher.ldap_uid,
-            "Specifications": p.specifications,
-        }
-        for p in projects
-    ]).set_index("ID")
-)

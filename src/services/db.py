@@ -22,7 +22,7 @@ class Db:
     def __init__(self) -> None:
         self._conn = st.connection("tmatch_db", type="sql")
 
-    def create_project(self, created_by: int, teacher_id: int, title: str, description: str, specifications: str) -> Project | None:
+    def create_project(self, created_by: int, teacher_id: int, title: str, description: str, specifications: str, program_id: int) -> Project | None:
         with self._conn.session as s:
             project = Project(
                 created_by=created_by,
@@ -30,6 +30,7 @@ class Db:
                 title=title,
                 description=description,
                 specifications=specifications,
+                program_id=program_id
             )
 
             try:

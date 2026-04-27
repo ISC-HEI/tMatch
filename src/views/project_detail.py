@@ -12,7 +12,8 @@ db = get_db()
 
 user = st.session_state.user
 
-projects = db.get_projects()
+program = db.get_program(st.session_state.program_id)
+projects = program.projects if program is not None else []
 projects_number = len(projects)
 
 if "selected_project" in st.session_state and st.session_state.selected_project is not None and (p := db.get_project(st.session_state.selected_project)):

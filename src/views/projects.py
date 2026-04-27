@@ -9,10 +9,12 @@ protect("projects")
 
 db = get_db()
 
-projects = db.get_projects()
+program = db.get_program(st.session_state.program_id)
+projects = program.projects if program is not None else []
 projects_number = len(projects)
+
 user: User = st.session_state.user
-roles = user.get_roles(st.session_state.program_id)
+roles = [role.name for role in user.get_roles(st.session_state.program_id)]
 
 st.title("Projects")
 
@@ -51,5 +53,27 @@ def render_for_students():
             st.session_state.selected_project = project.id
             st.switch_page(project_detail_page)
 
+
+def render_for_others():
+    st.divider()
+
+    cols = st.columns([4, 0.8])
+    cols[0].markdown("**Project**")
+
+    st.divider()
+
+    for project in projects:
+        pid = project.id
+        cols = st.columns([4, 0.8])
+        cols[0].write(project.title)
+
+        if cols[1].button("Open", key=f"open_{pid}"):
+            st.session_state.selected_project = project.id
+            st.switch_page(project_detail_page)
+        
+
 if "student" in roles:
     render_for_students()
+
+else:
+    render_for_others()

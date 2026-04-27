@@ -52,7 +52,7 @@ if session and user:
     if len(roles) == 0:
         page_list = [landing_page]
     else:
-        page_list = [
+        page_list = [landing_page] + [
             PAGE_CONFIG[page_name]
             for page_name, allowed_roles in PAGE_ROLES.items()
             if allowed(roles, allowed_roles)
