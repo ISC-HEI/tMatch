@@ -17,13 +17,15 @@ login_page = st.Page("views/login.py", title="Login", default=True)
 landing_page = st.Page("views/landing.py", title="Home")
 manage_projects_page = st.Page("views/manage_projects.py", title="Manage Projects")
 manage_users_page = st.Page("views/manage_users.py", title="Manage Users")
-project_page = st.Page("views/project.py", title="View Project")
+project_detail_page = st.Page("views/project_detail.py", title="View Project Details", visibility="hidden")
+projects_page = st.Page("views/projects.py", title="View Projects List")
 
 pages_config = {
     "landing": landing_page,
     "manage_projects": manage_projects_page,
     "manage_users": manage_users_page,
-    "project": project_page,
+    "project_detail": project_detail_page,
+    "projects": projects_page,
 }
 
 user = st.session_state.user

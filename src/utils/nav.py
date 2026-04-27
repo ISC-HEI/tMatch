@@ -3,10 +3,11 @@ import streamlit as st
 
 
 PAGE_ROLES = {
-    "landing": ["secretary", "teacher", "student"],
+    "landing": ["program_director", "secretary", "teacher", "student"],
     "manage_projects": ["secretary", "teacher"],
     "manage_users": ["secretary"],
-    "project": ["program director", "secretary", "teacher", "student"],
+    "project_detail": ["program director", "secretary", "teacher", "student"],
+    "projects": ["program director", "secretary", "teacher", "student"]
 }
 
 def protect(page_name: str):
