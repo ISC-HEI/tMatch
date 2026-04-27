@@ -27,3 +27,8 @@ class Project(Base):
     project_ratings: Mapped[list[ProjectRating]] = relationship("ProjectRating", back_populates="project", lazy="selectin")
     projects_keywords: Mapped[list[ProjectsKeyword]] = relationship("ProjectsKeyword", back_populates="project", lazy="selectin")
     student: Mapped[User] = relationship("User", foreign_keys=[student_id], back_populates="project", lazy="joined")
+
+    def get_rating_from(self, student_id: int) -> ProjectRating|None:
+        for rating in self.project_ratings:
+            if rating.student_id == student_id:
+                return rating

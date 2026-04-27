@@ -13,11 +13,11 @@ else:
 
 pg = None
 
-login_page = st.Page("pages/login.py", title="Login", default=True)
-landing_page = st.Page("pages/landing.py", title="Home")
-manage_projects_page = st.Page("pages/manage_projects.py", title="Manage Projects")
-manage_users_page = st.Page("pages/manage_users.py", title="Manage Users")
-project_page = st.Page("pages/project.py", title="View Project")
+login_page = st.Page("views/login.py", title="Login", default=True)
+landing_page = st.Page("views/landing.py", title="Home")
+manage_projects_page = st.Page("views/manage_projects.py", title="Manage Projects")
+manage_users_page = st.Page("views/manage_users.py", title="Manage Users")
+project_page = st.Page("views/project.py", title="View Project")
 
 pages_config = {
     "landing": landing_page,
