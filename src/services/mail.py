@@ -1,7 +1,8 @@
 
 from dataclasses import dataclass
-from smtplib import SMTP_SSL as SMTP
+import smtplib
 from email.mime.text import MIMEText
+import ssl
 import streamlit as st
 
 @dataclass
@@ -13,27 +14,28 @@ class Mail:
 
 class Mailer:
     _server: str
+    _port: int
     _username: str
     _password: str
     _sender: str
 
     def __init__(self) -> None:
         self._server = st.secrets.mailer.smtpserver
+        self._port = st.secrets.mailer.smtpserverport
         self._username = st.secrets.mailer.smtpusername
         self._password = st.secrets.mailer.smtppassword
         self._sender = st.secrets.mailer.sender
 
     def send(self, mail: Mail) -> None:
-        msg = MIMEText(mail.content, mail.subtype)
-        msg["Subject"] = mail.subject
-        msg["From"] = self._sender
+        context = ssl.create_default_context()
+        context.minimum_version = ssl.TLSVersion.TLSv1_3
 
-        conn = SMTP(self._server)
-        conn.set_debuglevel(0)
-        conn.login(self._username, self._password)
+        with smtplib.SMTP(self._server, self._port, timeout=10) as smtp:
+            smtp.starttls(context=context)
+            smtp.login(self._username, self._password)
 
-        try:
-            conn.sendmail(self._sender, mail.to, msg.as_string())
+            msg = MIMEText(mail.content, mail.subtype)
+            msg["Subject"] = mail.subject
+            msg["From"] = self._sender
 
-        finally:
-            conn.quit()
+            smtp.sendmail(self._sender, mail.to, msg.as_string())
