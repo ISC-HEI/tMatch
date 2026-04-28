@@ -26,8 +26,8 @@ class Project(Base):
 
     creator: Mapped[User] = relationship("User", foreign_keys=[created_by], back_populates="created_projects", lazy="joined")
     teacher: Mapped[User] = relationship("User", foreign_keys=[teacher_id], back_populates="supervised_projects", lazy="joined")
-    project_ratings: Mapped[list[ProjectRating]] = relationship("ProjectRating", back_populates="project", lazy="selectin")
-    projects_keywords: Mapped[list[ProjectsKeyword]] = relationship("ProjectsKeyword", back_populates="project", lazy="selectin")
+    project_ratings: Mapped[list[ProjectRating]] = relationship("ProjectRating", back_populates="project", lazy="selectin", cascade="all, delete-orphan")
+    projects_keywords: Mapped[list[ProjectsKeyword]] = relationship("ProjectsKeyword", back_populates="project", lazy="selectin", cascade="all, delete-orphan")
     student: Mapped[User] = relationship("User", foreign_keys=[student_id], back_populates="project", lazy="joined")
     program: Mapped[Program] = relationship("Program", foreign_keys=[program_id], back_populates="projects", lazy="joined")
 

@@ -18,8 +18,6 @@ projects_number = len(projects)
 
 roles = user.get_roles(st.session_state.program_id)
 
-print([role.name for role in user.get_roles(st.session_state.program_id)])
-
 if "selected_project" in st.session_state and st.session_state.selected_project is not None and (p := db.get_project(st.session_state.selected_project)):
     project: Project = p
 else:
@@ -115,12 +113,15 @@ if st.session_state.edit_project:
 
 if st.session_state.confirm_delete:
     st.warning("Are you sure you want to delete this project? This action cannot be undone.")
-    col1, col2 = st.columns(2)
-    with col1:
+
+    with st.container(horizontal=True):
         if st.button("Confirm Delete", type="primary"):
             db.remove(project)
+            st.session_state.confirm_delete = False
             st.switch_page(projects_page)
-    with col2:
+
+        st.space("stretch")
+
         if st.button("Cancel"):
             st.session_state.confirm_delete = False
             st.rerun()
