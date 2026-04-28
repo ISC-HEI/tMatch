@@ -45,6 +45,7 @@ INSERT INTO "program_memberships" ("user_id", "role_id", "program_id") VALUES
 (8, 5, 4),
 (9, 3, 2),
 (9, 4, 1),
+(9, 5, 1),
 (9, 5, 3);
  
 -- ─────────────────────────────────────────────

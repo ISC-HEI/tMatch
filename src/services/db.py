@@ -128,6 +128,22 @@ class Db:
                 .all()
             )
 
+    def get_students(self, program_id: int) -> Sequence[User]:
+        with self._conn.session as s:
+            return (
+                s.execute(
+                    select(User)
+                    .join(ProgramMembership, ProgramMembership.user_id == User.id)
+                    .join(Role, Role.id == ProgramMembership.role_id)
+                    .join(Program, Program.id == ProgramMembership.program_id)
+                    .where(Role.name == "student")
+                    .where(Program.id == program_id)
+                    .distinct()
+                )
+                .scalars()
+                .all()
+            )
+
     def get_keywords(self) -> Sequence[Keyword]:
         with self._conn.session as s:
             return s.execute(select(Keyword)).scalars().all()
