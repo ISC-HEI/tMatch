@@ -14,6 +14,9 @@ from models.role import Role
 from models.session import Session
 from models.user import User
 from models.project_rating import ProjectRating
+from sqlalchemy import delete
+from models.keyword import Keyword
+from models.projects_keyword import ProjectsKeyword
 
 
 class Db:
@@ -109,19 +112,35 @@ class Db:
             return s.execute(select(Project)).unique().scalars().all()
 
 
-    def get_teachers(self) -> Sequence[User]:
+    def get_teachers(self, program_id: int) -> Sequence[User]:
         with self._conn.session as s:
             return (
                 s.execute(
                     select(User)
                     .join(ProgramMembership, ProgramMembership.user_id == User.id)
                     .join(Role, Role.id == ProgramMembership.role_id)
+                    .join(Program, Program.id == ProgramMembership.program_id)
                     .where(Role.name == "teacher")
+                    .where(Program.id == program_id)
                     .distinct()
                 )
                 .scalars()
                 .all()
             )
+
+    def get_keywords(self) -> Sequence[Keyword]:
+        with self._conn.session as s:
+            return s.execute(select(Keyword)).scalars().all()
+
+    def update_project_keywords(self, project_id: int, keyword_ids: list[int]) -> None:
+        with self._conn.session as s:
+            s.execute(
+                delete(ProjectsKeyword)
+                .where(ProjectsKeyword.project_id == project_id)
+            )
+            for kid in keyword_ids:
+                s.add(ProjectsKeyword(project_id=project_id, keyword_id=kid))
+            s.commit()
 
     def get_users(self) -> Sequence[User]:
         with self._conn.session as s:
@@ -202,6 +221,24 @@ class Db:
             return s.execute(
                 select(Program).where(Program.id == program_id)
             ).scalar_one_or_none()
+
+    def update_project(self, project_id: int, title: str, description: str, teacher_id: int) -> Project | None:
+        with self._conn.session as s:
+            project = s.execute(
+                select(Project).where(Project.id == project_id)
+            ).scalar_one_or_none()
+            if project is None:
+                return None
+            project.title = title
+            project.description = description
+            project.teacher_id = teacher_id
+            try:
+                s.commit()
+                s.refresh(project)
+                return project
+            except IntegrityError:
+                s.rollback()
+                return None
 
     def remove(self, model: Base) -> None:
         with self._conn.session as s:

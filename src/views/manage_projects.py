@@ -9,6 +9,8 @@ protect("manage_projects")
 
 db = get_db()
 
+st.title("Create Projects")
+
 mode: str = st.selectbox(
     "Mode",
     ("from file", "manual"),
@@ -18,7 +20,7 @@ mode: str = st.selectbox(
 st.text(mode)
 
 with st.form("add_form"):
-    teachers = db.get_teachers()
+    teachers = db.get_teachers(st.session_state.program_id)
     teachers_map = { t.id: t for t in teachers }
     
     project_file = None

@@ -3,7 +3,7 @@ import streamlit as st
 
 from models.user import User
 from services.db import get_db
-from utils.nav import project_detail_page, protect
+from utils.nav import allowed, project_detail_page, protect
 
 protect("projects")
 
@@ -14,7 +14,7 @@ projects = program.projects if program is not None else []
 projects_number = len(projects)
 
 user: User = st.session_state.user
-roles = [role.name for role in user.get_roles(st.session_state.program_id)]
+roles = user.get_roles(st.session_state.program_id)
 
 st.title("Projects")
 
@@ -72,7 +72,7 @@ def render_for_others():
             st.switch_page(project_detail_page)
         
 
-if "student" in roles:
+if allowed(roles, ["student"]):
     render_for_students()
 
 else:
