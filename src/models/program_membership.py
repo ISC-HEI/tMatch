@@ -19,7 +19,7 @@ class ProgramMembership(Base):
 
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), primary_key=True)
     program_id: Mapped[int] = mapped_column(ForeignKey("programs.id"), primary_key=True)
-    role_id: Mapped[int] = mapped_column(ForeignKey("roles.id"), nullable=False)
+    role_id: Mapped[int] = mapped_column(ForeignKey("roles.id"), primary_key=True)
 
     user: Mapped[User] = relationship("User", lazy="joined")
     program: Mapped[Program] = relationship("Program", lazy="joined")

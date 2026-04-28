@@ -2,7 +2,7 @@ from ldap3 import Entry, Server, Connection, ALL
 
 LDAP_HOST = "ipa.example.test"
 LDAP_BASE_DN = "cn=users,cn=accounts,dc=example,dc=test"
-LDAP_PORT = 636
+LDAP_PORT = 12336
 
 
 def _get_server():

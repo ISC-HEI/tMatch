@@ -22,7 +22,7 @@ services:
       - SYSTEMD_SECCOMP=0
     
     volumes:
-      - tmatch_freeipa_data:/data:Z
+      - ./ipa_data:/data:Z
       - /sys/fs/cgroup:/sys/fs/cgroup:rw
     
     tmpfs:
@@ -32,14 +32,14 @@ services:
       - /run/lock
     
     ports:
-      - "80:80"
-      - "443:443"
-      - "389:389"
-      - "636:636"
-      - "88:88"
-      - "88:88/udp"
-      - "464:464"
-      - "464:464/udp"
+      - "3180:80"
+      - "31443:443"
+      - "31389:389"
+      - "31636:636"
+      - "3188:88"
+      - "3188:88/udp"
+      - "31464:464"
+      - "31464:464/udp"
     
     command:
       - ipa-server-install
@@ -74,8 +74,8 @@ services:
       - ./certs/server.crt:/opt/keycloak/conf/server.crt
       - ./certs/server.key:/opt/keycloak/conf/server.key
     ports:
-      - "8080:8080"
-      - "8443:8443"
+      - "3181:8080"
+      - "31443:8443"
     command:
       - start
     restart: unless-stopped
@@ -91,7 +91,7 @@ services:
       - POSTGRES_USER=keycloak
       - POSTGRES_PASSWORD=nieM1ui7ak9sheitohsh
     volumes:
-      - tmatch_keycloak_data:/var/lib/postgresql/data
+      - ./keycloak_data:/var/lib/postgresql/data
     restart: unless-stopped
 
   tmatch_db:
@@ -102,7 +102,7 @@ services:
       - POSTGRES_USER=tmatch
       - POSTGRES_PASSWORD=Oochoghahp6ie7aiza9p
     ports:
-      - "5432:5432"
+      - "3132:5432"
     restart: unless-stopped
     volumes:
       - tmatch_db_data:/var/lib/postgresql/data
@@ -111,6 +111,8 @@ services:
     build: .
     container_name: tmatch_app
     restart: unless-stopped
+    ports:
+      - "8084:8501"
     depends_on:
       - tmatch_db
       - freeipa
@@ -120,5 +122,3 @@ services:
 volumes:
   tmatch_specs_data:
   tmatch_db_data:
-  tmatch_keycloak_data:
-  tmatch_freeipa_data:
