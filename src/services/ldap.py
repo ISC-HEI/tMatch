@@ -1,38 +1,42 @@
+
+import streamlit as st
 from ldap3 import Entry, Server, Connection, ALL
 
-LDAP_HOST = "ipa.example.test"
-LDAP_BASE_DN = "cn=users,cn=accounts,dc=example,dc=test"
-LDAP_PORT = 12336
-
-
 def _get_server():
-    return Server(LDAP_HOST, port=LDAP_PORT, use_ssl=True, get_info=ALL)
+    return Server(st.secrets.ldap.ldaphost, port=int(st.secrets.ldap.ldapport), use_ssl=True, get_info=ALL)
+
+
+def _search_user(uid: str, attributes: list[str]) -> Entry | None:
+    """Search for a user by UID and return the LDAP entry."""
+
+    if not uid:
+        return None
+    try:
+        server = _get_server()
+        conn = Connection(server, user=st.secrets.ldap.ldapaccount, password=st.secrets.ldap.ldappassword, auto_bind=True)
+        conn.search(st.secrets.ldap.ldapbasedn, f"(uid={uid})", "SUBTREE", attributes=attributes)
+        entry = conn.entries[0] if conn.entries else None
+        conn.unbind()
+        return entry
+    except Exception as e:
+        print(e)
+        return None
 
 
 def authenticate(uid: str, password: str) -> dict[str, str|None] | None:
+    """Check if a the password is bound to the user."""
+
     if not uid or not password:
         return None
 
     try:
-        server = _get_server()
-        conn = Connection(server, auto_bind=True)
-
-        conn.search(
-            LDAP_BASE_DN,
-            f"(uid={uid})",
-            "SUBTREE",
-            attributes=["cn", "uid"],
-        )
-
-        if not conn.entries:
-            conn.unbind()
+        entry = _search_user(uid, attributes=["cn", "uid"])
+        if not entry:
             return None
 
-        entry: Entry = conn.entries[0]
         user_dn = entry.entry_dn
 
-        conn.unbind()
-
+        server = _get_server()
         auth_conn = Connection(server, user=user_dn, password=password)
         if not auth_conn.bind():
             auth_conn.unbind()
@@ -50,3 +54,10 @@ def authenticate(uid: str, password: str) -> dict[str, str|None] | None:
     except Exception as e:
         print(e)
         return None
+
+
+def get_email_by_uid(uid: str) -> str | None:
+    """Retrieve the email address of a user by their UID."""
+
+    entry = _search_user(uid, attributes=["mail"])
+    return str(entry.mail) if entry and entry.mail else None
