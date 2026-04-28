@@ -5,6 +5,9 @@ from email.mime.text import MIMEText
 import ssl
 import streamlit as st
 
+from models.project import Project
+from services.ldap import get_email_by_uid
+
 @dataclass
 class Mail:
     subject: str
@@ -26,7 +29,21 @@ class Mailer:
         self._password = st.secrets.mailer.smtppassword
         self._sender = st.secrets.mailer.sender
 
-    def send(self, mail: Mail) -> None:
+    def project_creation(self, project: Project):
+        teacher_email = get_email_by_uid(project.teacher.ldap_uid)
+
+        if teacher_email is None:
+            return
+
+        mail = Mail(
+            f"New project created and supervised by you",
+            f"A new project as been set as supervised by you :\n{project.title}",
+            teacher_email
+        )
+
+        self._send(mail)
+
+    def _send(self, mail: Mail) -> None:
         context = ssl.create_default_context()
         context.minimum_version = ssl.TLSVersion.TLSv1_3
 
