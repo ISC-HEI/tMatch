@@ -19,7 +19,6 @@ def assignment_algorithm(program_id: int, project_ratings: Sequence[ProjectRatin
 
     student_index = { user_id: i for i, user_id in enumerate(student_ids) }
     project_index = { project_id: j for j, project_id in enumerate(project_ids) }
-    project_by_id = { project_rating.project_id: project_rating.project for project_rating in project_ratings }
 
     rating_matrix = np.zeros((n_students, n_projects))
 
@@ -35,11 +34,9 @@ def assignment_algorithm(program_id: int, project_ratings: Sequence[ProjectRatin
         student_id = student_ids[i]
         project_id = project_ids[j]
 
-        project = project_by_id[project_id]
-
         print(f"{project_id} assigned to {student_id}")
 
-        db.assign_project(project, student_id)
+        db.assign_project(project_id, student_id)
 
     mailer.project_assignment(program_id)
 
@@ -59,6 +56,7 @@ def start_assignment(program_id: int):
 
     project_ratings = db.get_ratings(program_id)
     students = db.get_students(program_id)
+    students = [student for student in students if student.ldap_uid == "leny"]
     projects = db.get_projects(program_id)
 
     n_students = len(students)

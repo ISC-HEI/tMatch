@@ -100,10 +100,13 @@ class Db:
 
                 return project_rating
 
-    def assign_project(self, project: Project, student_id: int) -> None:
+    def assign_project(self, project_id: int, student_id: int) -> None:
         with self._conn.session as s:
-            project.student_id = student_id
+            project = s.execute(
+                select(Project).where(Project.id == project_id)
+            ).scalar_one()
 
+            project.student_id = student_id
             s.commit()
 
             return None
