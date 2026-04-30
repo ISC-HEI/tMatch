@@ -3,6 +3,7 @@ import streamlit as st
 
 from models.user import User
 from services.db import get_db
+from utils.assignment import start_assignment
 from utils.nav import allowed, project_detail_page, protect
 
 protect("projects")
@@ -19,6 +20,13 @@ roles = user.get_roles(st.session_state.program_id)
 st.title("Projects")
 
 def render_for_students():
+    if st.button("Start assignment"):
+        if start_assignment(st.session_state.program_id):
+            st.success("Successfuly started the assignment algorithm. You'll receive the result by email later.")
+
+        else:
+            st.error("Some students haven't rated all projects yet. They'll be notified now.")
+
     st.caption(f"Rate each project from 0 (lowest) to {projects_number } (highest). Your scores are private.")
 
     st.divider()
@@ -55,6 +63,13 @@ def render_for_students():
 
 
 def render_for_others():
+    if st.button("Start assignment"):
+        if start_assignment(st.session_state.program_id):
+            st.success("Successfuly started the assignment algorithm. You'll receive the result by email later.")
+
+        else:
+            st.error("Some students haven't rated all projects yet. They'll be notified now.")
+
     st.divider()
 
     cols = st.columns([4, 0.8])

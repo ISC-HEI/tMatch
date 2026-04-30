@@ -100,16 +100,44 @@ class Db:
 
                 return project_rating
 
-    def get_rating(self, project_id: int, user_id: int) ->  ProjectRating|None:
+    def assign_project(self, project: Project, student_id: int) -> None:
+        with self._conn.session as s:
+            project.student_id = student_id
+
+            s.commit()
+
+            return None
+        
+
+    def get_rating(self, project_id: int, user_id: int) -> ProjectRating|None:
         with self._conn.session as s:
             return s.execute(select(ProjectRating)
                              .where(ProjectRating.student_id == user_id)
                              .where(ProjectRating.project_id == project_id)
                              ).scalar_one_or_none()
 
-    def get_projects(self) -> Sequence[Project]:
+    def get_ratings(self, program_id: int) -> Sequence[ProjectRating]:
         with self._conn.session as s:
-            return s.execute(select(Project)).unique().scalars().all()
+            return (
+                s.execute(
+                    select(ProjectRating)
+                    .join(Project, Project.id == ProjectRating.project_id)
+                    .where(Project.program_id == program_id)
+                )
+                .scalars()
+                .all()
+            )
+
+    def get_projects(self, program_id: int) -> Sequence[Project]:
+        with self._conn.session as s:
+            return (
+                s.execute(
+                    select(Project)
+                    .where(Project.program_id == program_id)
+                )
+                .scalars()
+                .all()
+            )
 
 
     def get_teachers(self, program_id: int) -> Sequence[User]:
@@ -121,6 +149,22 @@ class Db:
                     .join(Role, Role.id == ProgramMembership.role_id)
                     .join(Program, Program.id == ProgramMembership.program_id)
                     .where(Role.name == "teacher")
+                    .where(Program.id == program_id)
+                    .distinct()
+                )
+                .scalars()
+                .all()
+            )
+
+    def get_students(self, program_id: int) -> Sequence[User]:
+        with self._conn.session as s:
+            return (
+                s.execute(
+                    select(User)
+                    .join(ProgramMembership, ProgramMembership.user_id == User.id)
+                    .join(Role, Role.id == ProgramMembership.role_id)
+                    .join(Program, Program.id == ProgramMembership.program_id)
+                    .where(Role.name == "student")
                     .where(Program.id == program_id)
                     .distinct()
                 )

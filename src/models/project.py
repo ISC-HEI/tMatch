@@ -21,14 +21,14 @@ class Project(Base):
     title: Mapped[str] = mapped_column(String, unique=True, nullable=False)
     description: Mapped[str] = mapped_column(String, nullable=False)
     specifications: Mapped[str] = mapped_column(String, unique=True, nullable=False)
-    student_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=True)
+    student_id: Mapped[int|None] = mapped_column(ForeignKey("users.id"), nullable=True)
     program_id: Mapped[int] = mapped_column(ForeignKey("programs.id"), nullable=False)
 
     creator: Mapped[User] = relationship("User", foreign_keys=[created_by], back_populates="created_projects", lazy="joined")
     teacher: Mapped[User] = relationship("User", foreign_keys=[teacher_id], back_populates="supervised_projects", lazy="joined")
     project_ratings: Mapped[list[ProjectRating]] = relationship("ProjectRating", back_populates="project", lazy="selectin", cascade="all, delete-orphan")
     projects_keywords: Mapped[list[ProjectsKeyword]] = relationship("ProjectsKeyword", back_populates="project", lazy="selectin", cascade="all, delete-orphan")
-    student: Mapped[User] = relationship("User", foreign_keys=[student_id], back_populates="project", lazy="joined")
+    student: Mapped[User|None] = relationship("User", foreign_keys=[student_id], back_populates="project", lazy="joined")
     program: Mapped[Program] = relationship("Program", foreign_keys=[program_id], back_populates="projects", lazy="joined")
 
     def get_rating_from(self, student_id: int) -> ProjectRating|None:

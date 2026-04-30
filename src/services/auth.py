@@ -17,8 +17,8 @@ def logout(session: Session) -> None:
     db.remove(session)
 
 
-def login(email: str, password: str) -> User|None:
-    user_infos = authenticate(email, password)
+def login(uid: str, password: str) -> User|None:
+    user_infos = authenticate(uid, password)
 
     if user_infos is None or user_infos["uid"] is None:
         return None

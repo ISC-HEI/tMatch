@@ -3,6 +3,7 @@ import streamlit as st
 import yaml
 
 from services.db import get_db
+from services.mail import Mailer
 from utils.nav import protect
 
 protect("manage_projects")
@@ -65,6 +66,8 @@ with st.form("add_form"):
 
             if project:
                 st.success("Project created successfully !")
+                mailer = Mailer()
+                mailer.project_creation(project)
 
             else:
                 st.error("Project already exists !")
@@ -85,6 +88,8 @@ with st.form("add_form"):
 
         if project:
             st.success("Project created successfully !")
+            mailer = Mailer()
+            mailer.project_creation(project)
 
         else:
             st.error("Project already exists !")

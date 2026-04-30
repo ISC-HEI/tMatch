@@ -2,6 +2,7 @@
 import streamlit as st
 
 from components.keywords import render_keywords
+from components.project import show_project
 from models.project import Project
 from services.db import get_db
 from utils.nav import allowed, projects_page, protect
@@ -127,22 +128,7 @@ if st.session_state.confirm_delete:
             st.rerun()
 
  
-st.divider()
- 
-st.title(project.title)
-render_keywords(project.projects_keywords)
-
-st.markdown(
-    f"<p style='color:#9CA3AF; font-size:0.9rem; margin-top:4px;'>" +
-    f"👤 Supervised by <strong style='color:#F9FAFB;'>{project.teacher.ldap_uid}</strong>" +
-    f"</p>",
-    unsafe_allow_html=True,
-)
-
-for paragraph in project.description.split("\n"):
-    st.write(paragraph)
-
-st.divider()
+show_project(project)
 
 if allowed(roles, ["student"]):
     st.subheader("Your rating")
