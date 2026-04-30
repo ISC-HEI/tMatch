@@ -56,7 +56,6 @@ def start_assignment(program_id: int):
 
     project_ratings = db.get_ratings(program_id)
     students = db.get_students(program_id)
-    students = [student for student in students if student.ldap_uid == "leny"]
     projects = db.get_projects(program_id)
 
     n_students = len(students)
