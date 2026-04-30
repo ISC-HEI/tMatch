@@ -11,6 +11,7 @@ dependencies = [
     "psycopg[binary]>=3.3.3",
     "pytest>=9.0.3",
     "pyyaml>=6.0.3",
+    "scipy>=1.17.1",
     "sqlalchemy>=2.0.48",
     "st-star-rating>=0.0.6",
     "starlette[full]>=1.0.0",

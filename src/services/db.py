@@ -100,12 +100,34 @@ class Db:
 
                 return project_rating
 
-    def get_rating(self, project_id: int, user_id: int) ->  ProjectRating|None:
+    def assign_project(self, project: Project, student_id: int) -> Project:
+        with self._conn.session as s:
+            project.student_id = student_id
+
+            s.commit()
+            s.refresh(project)
+
+            return project
+        
+
+    def get_rating(self, project_id: int, user_id: int) -> ProjectRating|None:
         with self._conn.session as s:
             return s.execute(select(ProjectRating)
                              .where(ProjectRating.student_id == user_id)
                              .where(ProjectRating.project_id == project_id)
                              ).scalar_one_or_none()
+
+    def get_ratings(self, program_id: int) -> Sequence[ProjectRating]:
+        with self._conn.session as s:
+            return (
+                s.execute(
+                    select(ProjectRating)
+                    .join(Project, Project.id == ProjectRating.project_id)
+                    .where(Project.program_id == program_id)
+                )
+                .scalars()
+                .all()
+            )
 
     def get_projects(self) -> Sequence[Project]:
         with self._conn.session as s:
