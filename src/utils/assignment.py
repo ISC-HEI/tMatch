@@ -28,7 +28,11 @@ def assignment_algorithm(program_id: int, project_ratings: Sequence[ProjectRatin
 
         rating_matrix[i][j] = project_rating.value
 
-    row_indexes, col_indexes = linear_sum_assignment(-rating_matrix)
+    mins = rating_matrix.min(axis=1, keepdims=True)
+    maxs = rating_matrix.max(axis=1, keepdims=True)
+
+    normalized_matrix = (rating_matrix - mins) / (maxs - mins)
+    row_indexes, col_indexes = linear_sum_assignment(-normalized_matrix)
 
     for i, j in zip(row_indexes, col_indexes):
         student_id = student_ids[i]
@@ -56,6 +60,7 @@ def start_assignment(program_id: int):
 
     project_ratings = db.get_ratings(program_id)
     students = db.get_students(program_id)
+    students = [student for student in students if student.ldap_uid == "leny"]
     projects = db.get_projects(program_id)
 
     n_students = len(students)
