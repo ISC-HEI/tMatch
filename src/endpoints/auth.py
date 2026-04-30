@@ -6,6 +6,17 @@ from starlette.responses import RedirectResponse
 from services.db import get_db
 
 async def create_session(request: Request):
+    """Create a session from an auth token.
+
+    Validates the token, creates a session, and sets a cookie.
+
+    Args:
+        request: The HTTP request.
+
+    Returns:
+        Redirect to home on success or failure.
+    """
+
     token = request.query_params.get("token")
     if not token:
         return RedirectResponse("/")

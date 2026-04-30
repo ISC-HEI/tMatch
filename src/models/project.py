@@ -32,6 +32,15 @@ class Project(Base):
     program: Mapped[Program] = relationship("Program", foreign_keys=[program_id], back_populates="projects", lazy="joined")
 
     def get_rating_from(self, student_id: int) -> ProjectRating|None:
+        """Get a specific rating from a student for this project.
+
+        Args:
+            student_id: ID of the student.
+
+        Returns:
+            The ProjectRating object, or None if not found.
+        """
+
         for rating in self.project_ratings:
             if rating.student_id == student_id:
                 return rating

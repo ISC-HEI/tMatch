@@ -20,6 +20,8 @@ class Mail:
     subtype: str = "plain"
 
 class Mailer:
+    """Email service for sending notifications."""
+
     _server: str
     _port: int
     _username: str
@@ -34,6 +36,12 @@ class Mailer:
         self._sender = st.secrets.mailer.sender
 
     def project_supervision(self, project: Project):
+        """Notify a teacher that a project has been assigned to them.
+
+        Args:
+            project: The Project object.
+        """
+
         teacher_email = get_email_by_uid(project.teacher.ldap_uid)
 
         if teacher_email is None:
@@ -48,6 +56,12 @@ class Mailer:
         self._send(mail)
 
     def project_creation(self, project: Project):
+        """Notify students of a new project and inform the supervising teacher.
+
+        Args:
+            project: The Project object.
+        """
+
         self.project_supervision(project)
 
         db = get_db()
@@ -66,6 +80,13 @@ class Mailer:
         self._send(mail)
 
     def students_reminder(self, students: list[User], urgent: bool = False):
+        """Send a reminder email to students to rate projects.
+
+        Args:
+            students: List of User objects to remind.
+            urgent: Whether the reminder is urgent.
+        """
+
         student_emails = self._get_user_emails(students)
 
         mail = Mail(
@@ -78,6 +99,12 @@ class Mailer:
         self._send(mail)
 
     def project_assignment(self, program_id: int):
+        """Notify students and teachers of project assignments.
+
+        Args:
+            program_id: ID of the program.
+        """
+
         db = get_db()
 
         students = db.get_students(program_id)
@@ -101,12 +128,28 @@ class Mailer:
         self._send(teacher_mail)
 
     def _get_user_emails(self, users: list[User]|Sequence[User]):
+        """Get email addresses for a list of users.
+
+        Args:
+            users: List of User objects.
+
+        Returns:
+            List of email addresses.
+        """
+
+
         return [
             email for user in users
             if (email := get_email_by_uid(user.ldap_uid)) is not None
         ]
 
     def _send(self, mail: Mail) -> None:
+        """Send an email.
+
+        Args:
+            mail: The Mail object to send.
+        """
+
         all_recipents = mail.to + mail.bcc
 
         msg = MIMEText(mail.content, mail.subtype)

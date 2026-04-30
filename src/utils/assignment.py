@@ -11,6 +11,18 @@ from scipy.optimize import linear_sum_assignment
 from services.mail import Mailer
 
 def assignment_algorithm(program_id: int, project_ratings: Sequence[ProjectRating], db: Db, mailer: Mailer):
+    """Run the project assignment algorithm.
+
+    This runs as a background task. It assigns projects to students based on their ratings
+    using the Hungarian Algorithm to maximize student satisfaction.
+
+    Args:
+        program_id: ID of the program to run assignment for.
+        project_ratings: All project ratings in the program.
+        db: Database instance.
+        mailer: Mailer instance.
+    """
+
     student_ids = sorted(set(project_rating.student_id for project_rating in project_ratings))
     project_ids = sorted(set(project_rating.project_id for project_rating in project_ratings))
 
@@ -45,6 +57,16 @@ def assignment_algorithm(program_id: int, project_ratings: Sequence[ProjectRatin
     mailer.project_assignment(program_id)
 
 def remind_students(students: Sequence[User], n_projects: int, mailer: Mailer):
+    """Remind students who haven't rated all projects to submit their ratings.
+
+    This runs as a background task.
+
+    Args:
+        students: List of all students in the program.
+        n_projects: Total number of projects in the program.
+        mailer: Mailer instance.
+    """
+
     students_to_remind = []
 
     for student in students:
@@ -55,6 +77,18 @@ def remind_students(students: Sequence[User], n_projects: int, mailer: Mailer):
 
 
 def start_assignment(program_id: int):
+    """Start the project assignment process for a program.
+
+    If all students have rated all projects, runs the assignment algorithm.
+    Otherwise, sends reminders to students who haven't completed their ratings.
+
+    Args:
+        program_id: ID of the program.
+
+    Returns:
+        True if assignment was started, False if reminders were sent.
+    """
+
     db = get_db()
     mailer = Mailer()
 

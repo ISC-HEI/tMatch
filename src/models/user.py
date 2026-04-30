@@ -29,6 +29,15 @@ class User(Base):
     project: Mapped[Project|None] = relationship("Project", foreign_keys="Project.student_id", back_populates="student", lazy="joined")
 
     def get_roles(self, program_id: int) -> list[Role]:
+        """Get the user's roles in a specific program.
+
+        Args:
+            program_id: ID of the program.
+
+        Returns:
+            List of Role objects for the user in the program.
+        """
+
         roles = []
 
         for membership in self.program_memberships:

@@ -29,6 +29,16 @@ PAGE_ROLES = {
 }
 
 def allowed(roles: list[Role], allowed_roles: list[str]):
+    """Check if any of the user's roles are in the allowed roles list.
+
+    Args:
+        roles: List of Role objects.
+        allowed_roles: List of allowed role names.
+
+    Returns:
+        True if at least one role matches, False otherwise.
+    """
+
     for role in roles:
         if role.name in allowed_roles:
             return True
@@ -36,6 +46,12 @@ def allowed(roles: list[Role], allowed_roles: list[str]):
     return False
 
 def protect(page_name: str):
+    """Protect a page by checking user authentication and authorization.
+
+    Args:
+        page_name: Name of the page to protect.
+    """
+
     user = st.session_state.get("user")
 
     if user is None:

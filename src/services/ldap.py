@@ -7,7 +7,15 @@ def _get_server():
 
 
 def _search_user(uid: str, attributes: list[str]) -> Entry | None:
-    """Search for a user by UID and return the LDAP entry."""
+    """Search for a user by UID in LDAP.
+
+    Args:
+        uid: The LDAP UID to search for.
+        attributes: List of LDAP attributes to retrieve.
+
+    Returns:
+        The LDAP Entry if found, None otherwise.
+    """
 
     if not uid:
         return None
@@ -24,7 +32,15 @@ def _search_user(uid: str, attributes: list[str]) -> Entry | None:
 
 
 def authenticate(uid: str, password: str) -> dict[str, str|None] | None:
-    """Check if a the password is bound to the user."""
+    """Authenticate a user against LDAP.
+
+    Args:
+        uid: The LDAP UID of the user.
+        password: The user's password.
+
+    Returns:
+        A dictionary with user info (dn, cn, uid) if authenticated, None otherwise.
+    """
 
     if not uid or not password:
         return None
@@ -57,7 +73,14 @@ def authenticate(uid: str, password: str) -> dict[str, str|None] | None:
 
 
 def get_email_by_uid(uid: str) -> str | None:
-    """Retrieve the email address of a user by their UID."""
+    """Get the email address of a user by their UID.
+
+    Args:
+        uid: The LDAP UID of the user.
+
+    Returns:
+        The email address if found, None otherwise.
+    """
 
     entry = _search_user(uid, attributes=["mail"])
     return str(entry.mail) if entry and entry.mail else None
