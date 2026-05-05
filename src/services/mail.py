@@ -10,7 +10,7 @@ from jinja2 import Environment, FileSystemLoader
 
 from models.project import Project
 from models.user import User
-from services.db import get_db
+from services.db import Db, get_db
 from services.ldap import get_email_by_uid
 
 env = Environment(loader=FileSystemLoader("emails/"))
@@ -46,8 +46,17 @@ class Mailer:
         Args:
             project: The Project object.
         """
+        
+        subject: str = "Project Supervision"
+        title: str = ""
+        content: str = ""
 
-        context = {}
+        context = {
+            "subject": subject,
+            "title": title,
+            "content": content,
+            "button_text": "See Project"
+        }
 
         template = env.get_template("email")
         html_content = template.render(**context)
@@ -58,8 +67,8 @@ class Mailer:
             return
 
         mail = Mail(
-            f"New project supervised by you",
-            f"A new project as been set as supervised by you :\n{project.title}",
+            f"{subject}",
+            f"{title}\n{content}",
             html_content=html_content,
             to=[teacher_email]
         )
@@ -73,7 +82,16 @@ class Mailer:
             project: The Project object.
         """
 
-        context = {}
+        subject: str = ""
+        title: str = ""
+        content: str = ""
+
+        context = {
+            "subject": subject,
+            "title": title,
+            "content": content,
+            "button_text": "See Project"
+        }
 
         template = env.get_template("email")
         html_content = template.render(**context)
@@ -87,8 +105,8 @@ class Mailer:
         student_emails = self._get_user_emails(students)
 
         mail = Mail(
-            f"New project created",
-            f"A new project has been created, please rate it and adjust previous ratings if needed :\n{project.title}",
+            f"{subject}",
+            f"{title}\n{content}",
             html_content=html_content,
             to=[self._sender],
             bcc=student_emails
@@ -104,7 +122,16 @@ class Mailer:
             urgent: Whether the reminder is urgent.
         """
 
-        context = {}
+        subject: str = ""
+        title: str = ""
+        content: str = ""
+
+        context = {
+            "subject": subject,
+            "title": title,
+            "content": content,
+            "button_text": "See Project"
+        }
 
         template = env.get_template("email")
         html_content = template.render(**context)
@@ -112,8 +139,8 @@ class Mailer:
         student_emails = self._get_user_emails(students)
 
         mail = Mail(
-            f"Project rating reminder {'[URGENT]' if urgent else ''}",
-            f"Do not forget to rate all projects. Please proceed as soon as possible to maximize your chances to get one you like.",
+            f"{subject}",
+            f"{title}\n{content}",
             html_content=html_content,
             to=[self._sender],
             bcc=student_emails
@@ -128,34 +155,10 @@ class Mailer:
             program_id: ID of the program.
         """
 
-        context = {}
-
-        template = env.get_template("email")
-        html_content = template.render(**context)
-
         db = get_db()
 
-        students = db.get_students(program_id)
-        teachers = db.get_teachers(program_id)
-
-        student_mail = Mail(
-            "Project assignment",
-            "Projects have been assigned to students. Please check which project has been assigned to you.",
-            html_content=html_content,
-            to=[self._sender],
-            bcc=self._get_user_emails(students)
-        )
-
-        teacher_mail = Mail(
-            "Projects assignment",
-            "Projects have been assigned to students. Please check which students you'll work with.",
-            html_content=html_content,
-            to=[self._sender],
-            bcc=self._get_user_emails(teachers)
-        )
-
-        self._send(student_mail)
-        self._send(teacher_mail)
+        self._project_assignment_students(program_id, db)
+        self._project_assignment_teachers(program_id, db)
 
     def manual_rating_edit(self, project: Project, student: User):
         """Notify a student of a modification of one of their ratings.
@@ -179,6 +182,76 @@ class Mailer:
         )
 
         self._send(mail)
+
+    def _project_assignment_students(self, program_id: int, db: Db):
+        """Notify students of project assignments
+
+        Args:
+            program_id: ID of the program
+            db: database instance
+        """
+
+        subject: str = ""
+        title: str = "You've been assigned a new project!"
+        content: str = "Great news! The project assignments are in! Log in to the application to find out which project you've been matched with this year."
+
+        context = {
+            "subject": subject,
+            "title": title,
+            "content": content,
+            "button_text": "See Project"
+        }
+
+        template = env.get_template("email")
+        html_content = template.render(**context)
+
+        students = db.get_students(program_id)
+
+        mail = Mail(
+            "Project Assignment",
+            "Projects have been assigned to students. Please check which project has been assigned to you.",
+            html_content=html_content,
+            to=[self._sender],
+            bcc=self._get_user_emails(students)
+        )
+
+        self._send(mail)
+
+    def _project_assignment_teachers(self, program_id: int, db: Db):
+        """Notify teachers of project assignments
+
+        Args:
+            program_id: ID of the program
+            db: database instance
+        """
+
+        subject: str = ""
+        title: str = ""
+        content: str = ""
+
+        context = {
+            "subject": subject,
+            "title": title,
+            "content": content,
+            "button_text": "See Project"
+        }
+
+        template = env.get_template("email")
+        html_content = template.render(**context)
+
+        teachers = db.get_teachers(program_id)
+
+        mail = Mail(
+            "Projects assignment",
+            "Projects have been assigned to students. Please check which students you'll work with.",
+            html_content=html_content,
+            to=[self._sender],
+            bcc=self._get_user_emails(teachers)
+        )
+
+        self._send(mail)
+
+
 
     def _get_user_emails(self, users: list[User]|Sequence[User]):
         """Get email addresses for a list of users.
