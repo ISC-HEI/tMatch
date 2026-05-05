@@ -55,10 +55,11 @@ class Mailer:
             "subject": subject,
             "title": title,
             "content": content,
-            "button_text": "See Project"
+            "button_text": "See Project",
+            "app_url": "example.com"
         }
 
-        template = env.get_template("email")
+        template = env.get_template("email.html")
         html_content = template.render(**context)
 
         teacher_email = get_email_by_uid(project.teacher.ldap_uid)
@@ -90,10 +91,11 @@ class Mailer:
             "subject": subject,
             "title": title,
             "content": content,
-            "button_text": "See Project"
+            "button_text": "See Project",
+            "app_url": "example.com"
         }
 
-        template = env.get_template("email")
+        template = env.get_template("email.html")
         html_content = template.render(**context)
 
         self.project_supervision(project)
@@ -130,10 +132,11 @@ class Mailer:
             "subject": subject,
             "title": title,
             "content": content,
-            "button_text": "See Project"
+            "button_text": "See Project",
+            "app_url": "example.com"
         }
 
-        template = env.get_template("email")
+        template = env.get_template("email.html")
         html_content = template.render(**context)
 
         student_emails = self._get_user_emails(students)
@@ -176,10 +179,11 @@ class Mailer:
     #         "subject": subject,
     #         "title": title,
     #         "content": content,
-    #         "button_text": "See Project"
+    #         "button_text": ",See Project"
+    #         "app_url": "example.com"
     #     }
     #
-    #     template = env.get_template("email")
+    #     template = env.get_template("email.html")
     #     html_content = template.render(**context)
     #
     #     mail = Mail(
@@ -208,10 +212,11 @@ class Mailer:
             "subject": subject,
             "title": title,
             "content": content,
-            "button_text": "See Project"
+            "button_text": "See Project",
+            "app_url": "example.com"
         }
 
-        template = env.get_template("email")
+        template = env.get_template("email.html")
         html_content = template.render(**context)
 
         students = db.get_students(program_id)
@@ -242,10 +247,11 @@ class Mailer:
             "subject": subject,
             "title": title,
             "content": content,
-            "button_text": "See Project"
+            "button_text": "See Project",
+            "app_url": "example.com"
         }
 
-        template = env.get_template("email")
+        template = env.get_template("email.html")
         html_content = template.render(**context)
 
         teachers = db.get_teachers(program_id)
