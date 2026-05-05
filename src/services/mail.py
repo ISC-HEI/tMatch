@@ -127,6 +127,23 @@ class Mailer:
         self._send(student_mail)
         self._send(teacher_mail)
 
+    def manual_rating_edit(self, project: Project, student: User):
+        """Notify a student of a modification of one of their ratings.
+
+        Args:
+            project: Project target
+            student: Student target
+        """
+
+        mail = Mail(
+            "Rating edit",
+            f"Your rating on \"{project.title}\" was modified by the program director.",
+            to=self._get_user_emails([student]),
+            bcc=[]
+        )
+
+        self._send(mail)
+
     def _get_user_emails(self, users: list[User]|Sequence[User]):
         """Get email addresses for a list of users.
 

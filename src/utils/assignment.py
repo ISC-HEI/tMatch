@@ -50,8 +50,6 @@ def assignment_algorithm(program_id: int, project_ratings: Sequence[ProjectRatin
         student_id = student_ids[i]
         project_id = project_ids[j]
 
-        print(f"{project_id} assigned to {student_id}")
-
         db.assign_project(project_id, student_id)
 
     mailer.project_assignment(program_id)
@@ -94,7 +92,7 @@ def start_assignment(program_id: int):
 
     project_ratings = db.get_ratings(program_id)
     students = db.get_students(program_id)
-    students = [student for student in students if student.ldap_uid == "leny"]
+    students = [student for student in students if student.ldap_uid == "leny"] #TODO remove after test
     projects = db.get_projects(program_id)
 
     n_students = len(students)
