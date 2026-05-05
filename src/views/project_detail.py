@@ -163,11 +163,12 @@ if allowed(roles, ["student"]):
             value=rating.value if already_rated else 0,
             step=1,
             help=f"0 = lowest, {projects_number} = highest",
+            key="student_slider"
         )
  
         st.caption(f"Selected: **{chosen_value} / {projects_number}**")
  
-        if st.button("Submit rating", type="primary"):
+        if st.button("Submit rating", type="primary", key="student_rating_submit"):
             db.apply_rating(project.id, user.id, chosen_value)
             st.session_state.edit_rating = False
             st.rerun()
@@ -187,15 +188,16 @@ if allowed(roles, ["program director"]):
         value=student_rating.value if student_rating is not None else 0,
         step=1,
         help=f"0 = lowest, {projects_number} = highest",
+        key="director_slider"
     )
  
     st.caption(f"Selected: **{chosen_value} / {projects_number}**")
  
-    if st.button("Submit rating", type="primary"):
+    if st.button("Submit rating", type="primary", key="director_rating_submit"):
         project_rating = db.apply_rating(project.id, students_map[student_id].id, chosen_value)
 
-        mailer = Mailer()
-        mailer.manual_rating_edit(project_rating.project, project_rating.student)
+        # mailer = Mailer()
+        # mailer.manual_rating_edit(project_rating.project, project_rating.student)
 
         st.session_state.edit_rating = False
         st.rerun()
