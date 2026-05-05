@@ -5,8 +5,14 @@ from models.project import Project
 
 
 def show_project(project: Project):
+    """Display a project.
+
+    Args:
+        project: The Project object to display.
+    """
+
     st.divider()
- 
+  
     st.title(project.title)
     render_keywords(project.projects_keywords)
 

@@ -1,10 +1,10 @@
 
 import streamlit as st
 
-from components.keywords import render_keywords
 from components.project import show_project
 from models.project import Project
 from services.db import get_db
+from services.mail import Mailer
 from utils.nav import allowed, projects_page, protect
 
 protect("project_detail")
@@ -37,6 +37,14 @@ pid = project.id
 rating = project.get_rating_from(user.id)
 already_rated = rating is not None
 
+students = []
+students_map = {}
+student_id = 0
+
+if allowed(roles, ["program director"]):
+    students = db.get_students(st.session_state.program_id)
+    students_map = { s.id: s for s in students }
+
 with st.container(horizontal=True):
     if st.button("← Back to projects"):
         st.switch_page(projects_page)
@@ -50,6 +58,14 @@ with st.container(horizontal=True):
     if allowed(roles, ["secretary", "teacher"]) and st.button("Delete"):
         st.session_state.confirm_delete = True
         st.rerun()
+
+    if allowed(roles, ["program director"]):
+        student_id = st.selectbox(
+            "Student",
+            students_map,
+            format_func=lambda student_id: students_map[student_id].ldap_uid,
+            index=0,
+        )
 
 if st.session_state.edit_project:
     with st.form("edit_project_form"):
@@ -144,14 +160,45 @@ if allowed(roles, ["student"]):
             label="Score",
             min_value=0,
             max_value=projects_number,
-            value=projects_number // 2,
+            value=rating.value if already_rated else 0,
             step=1,
             help=f"0 = lowest, {projects_number} = highest",
+            key="student_slider"
         )
  
         st.caption(f"Selected: **{chosen_value} / {projects_number}**")
  
-        if st.button("Submit rating", type="primary"):
+        if st.button("Submit rating", type="primary", key="student_rating_submit"):
             db.apply_rating(project.id, user.id, chosen_value)
             st.session_state.edit_rating = False
             st.rerun()
+
+
+if allowed(roles, ["program director"]):
+    student_rating = project.get_rating_from(students_map[student_id].id)
+
+    rate_info = "(Hasn't rated yet)"
+
+    st.subheader(f"Edit {students_map[student_id].ldap_uid}'s rating {rate_info if student_rating is None else ''}")
+
+    chosen_value = st.slider(
+        label="Score",
+        min_value=0,
+        max_value=projects_number,
+        value=student_rating.value if student_rating is not None else 0,
+        step=1,
+        help=f"0 = lowest, {projects_number} = highest",
+        key="director_slider"
+    )
+ 
+    st.caption(f"Selected: **{chosen_value} / {projects_number}**")
+ 
+    if st.button("Submit rating", type="primary", key="director_rating_submit"):
+        project_rating = db.apply_rating(project.id, students_map[student_id].id, chosen_value)
+
+        # mailer = Mailer()
+        # mailer.manual_rating_edit(project_rating.project, project_rating.student)
+
+        st.session_state.edit_rating = False
+        st.rerun()
+
