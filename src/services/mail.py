@@ -48,8 +48,8 @@ class Mailer:
         """
         
         subject: str = "Project Supervision"
-        title: str = ""
-        content: str = ""
+        title: str = "You've been set as the supervisor of a project!"
+        content: str = "A project has just been assigned to your supervision! As the supervisor, your role will be to guide the student throughout their bachelor project, answering their questions, and keeping track of their progress along the way. Head over to the application to review the project details before the voting phase begins."
 
         context = {
             "subject": subject,
@@ -82,9 +82,9 @@ class Mailer:
             project: The Project object.
         """
 
-        subject: str = ""
-        title: str = ""
-        content: str = ""
+        subject: str = "Project Creation"
+        title: str = "A new project just landed!"
+        content: str = "A new project has just been added to the platform and it might be the one for you! Head over to the application to check it out and get all the details before the voting phase kicks off."
 
         context = {
             "subject": subject,
@@ -122,9 +122,9 @@ class Mailer:
             urgent: Whether the reminder is urgent.
         """
 
-        subject: str = ""
-        title: str = ""
-        content: str = ""
+        subject: str = f"Rating Reminder {'[URGENT]' if urgent else ''}"
+        title: str = "Heads up! The voting phase is closing soon!"
+        content: str = "Just a friendly nudge! The voting phase is coming to an end and we wouldn't want you to miss your chance. Jump into the application and make sure your ratings are in before it's too late."
 
         context = {
             "subject": subject,
@@ -160,38 +160,47 @@ class Mailer:
         self._project_assignment_students(program_id, db)
         self._project_assignment_teachers(program_id, db)
 
-    def manual_rating_edit(self, project: Project, student: User):
-        """Notify a student of a modification of one of their ratings.
-
-        Args:
-            project: Project target
-            student: Student target
-        """
-
-        context = {}
-
-        template = env.get_template("email")
-        html_content = template.render(**context)
-
-        mail = Mail(
-            "Rating edit",
-            f"Your rating on \"{project.title}\" was modified by the program director.",
-            html_content=html_content,
-            to=self._get_user_emails([student]),
-            bcc=[]
-        )
-
-        self._send(mail)
+    # def manual_rating_edit(self, project: Project, student: User):
+    #     """Notify a student of a modification of one of their ratings.
+    #
+    #     Args:
+    #         project: Project target
+    #         student: Student target
+    #     """
+    #
+    #     subject: str = ""
+    #     title: str = "A manual change has been made to the assignments"
+    #     content: str = "Great news! The project assignments are in! Log in to the application to find out which project you've been matched with this year."
+    #
+    #     context = {
+    #         "subject": subject,
+    #         "title": title,
+    #         "content": content,
+    #         "button_text": "See Project"
+    #     }
+    #
+    #     template = env.get_template("email")
+    #     html_content = template.render(**context)
+    #
+    #     mail = Mail(
+    #         "Rating edit",
+    #         f"Your rating on \"{project.title}\" was modified by the program director.",
+    #         html_content=html_content,
+    #         to=self._get_user_emails([student]),
+    #         bcc=[]
+    #     )
+    #
+    #     self._send(mail)
 
     def _project_assignment_students(self, program_id: int, db: Db):
         """Notify students of project assignments
 
         Args:
             program_id: ID of the program
-            db: database instance
+            db: Database instance
         """
 
-        subject: str = ""
+        subject: str = "Project Assignment"
         title: str = "You've been assigned a new project!"
         content: str = "Great news! The project assignments are in! Log in to the application to find out which project you've been matched with this year."
 
@@ -222,12 +231,12 @@ class Mailer:
 
         Args:
             program_id: ID of the program
-            db: database instance
+            db: Database instance
         """
 
-        subject: str = ""
-        title: str = ""
-        content: str = ""
+        subject: str = "Project Assignment"
+        title: str = "You've got new students to supervise!"
+        content: str = "The project assignments are finalized, and some students have been matched with your projects! Head over to the application to meet your new supervisees and get an overview of all your supervisions for this year."
 
         context = {
             "subject": subject,

@@ -194,8 +194,8 @@ if allowed(roles, ["program director"]):
     if st.button("Submit rating", type="primary"):
         project_rating = db.apply_rating(project.id, students_map[student_id].id, chosen_value)
 
-        mailer = Mailer()
-        mailer.manual_rating_edit(project_rating.project, project_rating.student)
+        # mailer = Mailer()
+        # mailer.manual_rating_edit(project_rating.project, project_rating.student)
 
         st.session_state.edit_rating = False
         st.rerun()
