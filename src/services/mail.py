@@ -3,18 +3,23 @@ from collections.abc import Sequence
 from dataclasses import dataclass, field
 import smtplib
 from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 import ssl
 import streamlit as st
+from jinja2 import Environment, FileSystemLoader
 
 from models.project import Project
 from models.user import User
 from services.db import get_db
 from services.ldap import get_email_by_uid
 
+env = Environment(loader=FileSystemLoader("emails/"))
+
 @dataclass
 class Mail:
     subject: str
-    content: str
+    text_content: str
+    html_content: str
     to: list[str]
     bcc: list[str] = field(default_factory=list)
     subtype: str = "plain"
@@ -42,6 +47,11 @@ class Mailer:
             project: The Project object.
         """
 
+        context = {}
+
+        template = env.get_template("email")
+        html_content = template.render(**context)
+
         teacher_email = get_email_by_uid(project.teacher.ldap_uid)
 
         if teacher_email is None:
@@ -50,6 +60,7 @@ class Mailer:
         mail = Mail(
             f"New project supervised by you",
             f"A new project as been set as supervised by you :\n{project.title}",
+            html_content=html_content,
             to=[teacher_email]
         )
 
@@ -62,6 +73,11 @@ class Mailer:
             project: The Project object.
         """
 
+        context = {}
+
+        template = env.get_template("email")
+        html_content = template.render(**context)
+
         self.project_supervision(project)
 
         db = get_db()
@@ -73,6 +89,7 @@ class Mailer:
         mail = Mail(
             f"New project created",
             f"A new project has been created, please rate it and adjust previous ratings if needed :\n{project.title}",
+            html_content=html_content,
             to=[self._sender],
             bcc=student_emails
         )
@@ -87,11 +104,17 @@ class Mailer:
             urgent: Whether the reminder is urgent.
         """
 
+        context = {}
+
+        template = env.get_template("email")
+        html_content = template.render(**context)
+
         student_emails = self._get_user_emails(students)
 
         mail = Mail(
             f"Project rating reminder {'[URGENT]' if urgent else ''}",
             f"Do not forget to rate all projects. Please proceed as soon as possible to maximize your chances to get one you like.",
+            html_content=html_content,
             to=[self._sender],
             bcc=student_emails
         )
@@ -105,6 +128,11 @@ class Mailer:
             program_id: ID of the program.
         """
 
+        context = {}
+
+        template = env.get_template("email")
+        html_content = template.render(**context)
+
         db = get_db()
 
         students = db.get_students(program_id)
@@ -113,6 +141,7 @@ class Mailer:
         student_mail = Mail(
             "Project assignment",
             "Projects have been assigned to students. Please check which project has been assigned to you.",
+            html_content=html_content,
             to=[self._sender],
             bcc=self._get_user_emails(students)
         )
@@ -120,6 +149,7 @@ class Mailer:
         teacher_mail = Mail(
             "Projects assignment",
             "Projects have been assigned to students. Please check which students you'll work with.",
+            html_content=html_content,
             to=[self._sender],
             bcc=self._get_user_emails(teachers)
         )
@@ -135,9 +165,15 @@ class Mailer:
             student: Student target
         """
 
+        context = {}
+
+        template = env.get_template("email")
+        html_content = template.render(**context)
+
         mail = Mail(
             "Rating edit",
             f"Your rating on \"{project.title}\" was modified by the program director.",
+            html_content=html_content,
             to=self._get_user_emails([student]),
             bcc=[]
         )
@@ -169,10 +205,16 @@ class Mailer:
 
         all_recipents = mail.to + mail.bcc
 
-        msg = MIMEText(mail.content, mail.subtype)
+        msg = MIMEMultipart("alternative")
         msg["Subject"] = mail.subject
         msg["From"] = self._sender
         msg["To"] = ", ".join(mail.to)
+
+        text_part = MIMEText(mail.text_content, "plain")
+        html_part = MIMEText(mail.html_content, "html")
+
+        msg.attach(text_part)
+        msg.attach(html_part)
 
         context = ssl.create_default_context()
         context.minimum_version = ssl.TLSVersion.TLSv1_3
