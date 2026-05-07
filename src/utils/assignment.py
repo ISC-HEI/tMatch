@@ -10,21 +10,19 @@ from scipy.optimize import linear_sum_assignment
 
 from services.mail import Mailer
 
-def assignment_algorithm(program_id: int, project_ratings: Sequence[ProjectRating], db: Db, mailer: Mailer):
-    """Run the project assignment algorithm.
+def assignment_algorithm(project_ratings: Sequence[ProjectRating], student_ids: list[int], project_ids: list[int]) -> tuple[list[int], list[int]] :
+    """Assignment algorithm.
 
-    This runs as a background task. It assigns projects to students based on their ratings
-    using the Hungarian Algorithm to maximize student satisfaction.
+    Creates the matrix, run the hungarian algorithm on a normalized version and returns the assignment matrix.
 
     Args:
-        program_id: ID of the program to run assignment for.
         project_ratings: All project ratings in the program.
-        db: Database instance.
-        mailer: Mailer instance.
-    """
+        student_ids: All student IDs in the program.
+        project_ids: All project IDs in the program.
 
-    student_ids = sorted(set(project_rating.student_id for project_rating in project_ratings))
-    project_ids = sorted(set(project_rating.project_id for project_rating in project_ratings))
+    Returns:
+        The assigment matrix.
+    """
 
     n_students = len(student_ids)
     n_projects = len(project_ids)
@@ -44,7 +42,25 @@ def assignment_algorithm(program_id: int, project_ratings: Sequence[ProjectRatin
     maxs = rating_matrix.max(axis=1, keepdims=True)
 
     normalized_matrix = (rating_matrix - mins) / (maxs - mins)
-    row_indexes, col_indexes = linear_sum_assignment(-normalized_matrix)
+    return linear_sum_assignment(-normalized_matrix)
+
+def assign_projects(program_id: int, project_ratings: Sequence[ProjectRating], db: Db, mailer: Mailer):
+    """Run the project assignment algorithm.
+
+    This runs as a background task. It assigns projects to students based on their ratings
+    using the Hungarian Algorithm to maximize student satisfaction.
+
+    Args:
+        program_id: ID of the program to run assignment for.
+        project_ratings: All project ratings in the program.
+        db: Database instance.
+        mailer: Mailer instance.
+    """
+
+    student_ids = sorted(set(project_rating.student_id for project_rating in project_ratings))
+    project_ids = sorted(set(project_rating.project_id for project_rating in project_ratings))
+
+    row_indexes, col_indexes = assignment_algorithm(project_ratings, student_ids, project_ids)
 
     for i, j in zip(row_indexes, col_indexes):
         student_id = student_ids[i]
@@ -92,7 +108,6 @@ def start_assignment(program_id: int):
 
     project_ratings = db.get_ratings(program_id)
     students = db.get_students(program_id)
-    students = [student for student in students if student.ldap_uid == "leny"] #TODO remove after test
     projects = db.get_projects(program_id)
 
     n_students = len(students)
@@ -104,7 +119,7 @@ def start_assignment(program_id: int):
 
         return False
 
-    thread = Thread(target = assignment_algorithm, args = (program_id, project_ratings, db, mailer))
+    thread = Thread(target = assign_projects, args = (program_id, project_ratings, db, mailer))
     thread.start()
 
     return True
