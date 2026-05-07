@@ -17,7 +17,7 @@ def _search_user(uid: str, attributes: list[str]) -> Entry | None:
         The LDAP Entry if found, None otherwise.
     """
 
-    if not uid:
+    if not uid or uid == "":
         return None
     try:
         server = _get_server()
@@ -81,6 +81,9 @@ def get_email_by_uid(uid: str) -> str | None:
     Returns:
         The email address if found, None otherwise.
     """
+
+    if uid == "":
+        return None
 
     entry = _search_user(uid, attributes=["mail"])
     return str(entry.mail) if entry and entry.mail else None
