@@ -24,10 +24,10 @@ def get_assignment_dataframe(students: Sequence[User]) -> pd.DataFrame:
     for student in students:
         project = student.project
         rows.append({
-            "Student ID":   student.ldap_uid,
+            "Student":   student.ldap_uid,
             "Project ID":   project.id   if project else None,
             "Project Title":project.title if project else "⚠️ Not assigned",
-            "Supervisor":   project.teacher.ldap_uid if project else "—",
+            "Teacher":   project.teacher.ldap_uid if project else "-",
         })
 
     df = pd.DataFrame(rows)
