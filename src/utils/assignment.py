@@ -40,8 +40,15 @@ def assignment_algorithm(project_ratings: Sequence[ProjectRating], student_ids: 
 
     mins = rating_matrix.min(axis=1, keepdims=True)
     maxs = rating_matrix.max(axis=1, keepdims=True)
+    ranges = maxs - mins
 
-    normalized_matrix = (rating_matrix - mins) / (maxs - mins)
+    with np.errstate(invalid="ignore", divide="ignore"):
+        normalized_matrix = np.where(
+            ranges == 0,
+            0.0,
+            (rating_matrix - mins) / ranges
+        )
+
     return linear_sum_assignment(-normalized_matrix)
 
 def assign_projects(program_id: int, project_ratings: Sequence[ProjectRating], db: Db, mailer: Mailer):
