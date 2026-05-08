@@ -62,6 +62,15 @@ with st.form("add_form"):
             st.error("Invalid yaml file, missing required properties !")
 
         else:
+            specs_dir = Path("specs")
+            specs_dir.mkdir(exist_ok=True)
+        
+            filename = f"{specs.name}"
+            filepath = specs_dir / filename
+
+            with open(filepath, "wb") as f:
+                f.write(specs.getvalue())
+
             project = db.create_project(st.session_state.user.id, teacher_id, project_dict["title"], project_dict["description"], f"specs/{specs.name}", st.session_state.program_id)
 
             if project:
