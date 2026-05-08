@@ -2,7 +2,7 @@
 from sqlalchemy.orm import sessionmaker
 
 from models.program import Program
-from seed.engine import engine
+from seeds.engine import engine
 
 Session = sessionmaker(bind=engine)
 

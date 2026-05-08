@@ -1,7 +1,7 @@
 from sqlalchemy.orm import sessionmaker
 
 from models.role import Role
-from seed.engine import engine
+from seeds.engine import engine
 
 Session = sessionmaker(bind=engine)
 

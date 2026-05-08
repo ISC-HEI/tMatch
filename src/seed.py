@@ -1,11 +1,11 @@
 
 from sqlalchemy.orm import sessionmaker
 from models.role import Role
-from seed.keywords import create_keywords
-from seed.programs import create_programs
-from seed.roles import create_roles
+from seeds.keywords import create_keywords
+from seeds.programs import create_programs
+from seeds.roles import create_roles
 
-from seed.engine import engine
+from seeds.engine import engine
 
 Session = sessionmaker(bind=engine)
 session = Session()

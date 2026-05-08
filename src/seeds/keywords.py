@@ -1,7 +1,7 @@
 from sqlalchemy.orm import sessionmaker
 
 from models.keyword import Keyword
-from seed.engine import engine
+from seeds.engine import engine
 
 Session = sessionmaker(bind=engine)
 
