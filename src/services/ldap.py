@@ -22,13 +22,13 @@ def _search_user(uid: str, attributes: list[str]) -> Entry | None:
     try:
         server = _get_server()
         conn = Connection(server, user=LDAP_USER, password=LDAP_PASSWORD, auto_bind=True)
-        print("LDAP Connection successful")
         conn.search(LDAP_BASE_DN, f"(uid={uid})", "SUBTREE", attributes=attributes)
         entry = conn.entries[0] if conn.entries else None
         conn.unbind()
         return entry
     except Exception as e:
         print(e)
+        print("search bind error")
         return None
 
 
@@ -56,7 +56,6 @@ def authenticate(uid: str, password: str) -> dict[str, str|None] | None:
         server = _get_server()
         auth_conn = Connection(server, user=user_dn, password=password)
         if not auth_conn.bind():
-            print("invalid credentials")
             auth_conn.unbind()
             return None
 
@@ -71,6 +70,7 @@ def authenticate(uid: str, password: str) -> dict[str, str|None] | None:
 
     except Exception as e:
         print(e)
+        print("auth bind error")
         return None
 
 
