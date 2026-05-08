@@ -40,6 +40,8 @@ class Mailer:
         self._password = SMTP_PASSWORD 
         self._sender = SMTP_USER 
 
+        print(self._port, self._server, self._username, self._password)
+
     def project_supervision(self, project: Project):
         """Notify a teacher that a project has been assigned to them.
 
