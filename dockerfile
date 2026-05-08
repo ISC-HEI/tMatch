@@ -12,7 +12,7 @@ WORKDIR /app
 COPY src/pyproject.toml src/uv.lock .
 RUN uv sync --frozen --no-install-project
 
-COPY src/* .
+COPY src/ .
 
 RUN uv sync --frozen
 

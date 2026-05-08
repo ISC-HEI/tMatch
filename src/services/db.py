@@ -1,10 +1,12 @@
 from collections.abc import Sequence
 from datetime import datetime, timedelta, timezone
-from sqlalchemy import select
+from sqlalchemy import create_engine, select
 from sqlalchemy.exc import IntegrityError
+from sqlalchemy.orm import sessionmaker
 import streamlit as st
 from streamlit.connections import SQLConnection
 
+from config import DATABASE_URL
 from models.auth_token import AuthToken
 from models.base import Base
 from models.program import Program
@@ -25,7 +27,12 @@ class Db:
     _conn: SQLConnection
 
     def __init__(self) -> None:
-        self._conn = st.connection("tmatch_db", type="sql")
+        self._conn = self._get_session_factory()
+
+    @st.cache_resource
+    def _get_session_factory():
+        engine = create_engine(DATABASE_URL)
+        return sessionmaker(bind=engine)
 
     def create_project(self, created_by: int, teacher_id: int, title: str, description: str, specifications: str, program_id: int) -> Project | None:
         """Create a new project in the database.
