@@ -28,7 +28,6 @@ def _search_user(uid: str, attributes: list[str]) -> Entry | None:
         return entry
     except Exception as e:
         print(e)
-        print("search bind error")
         return None
 
 
@@ -70,7 +69,6 @@ def authenticate(uid: str, password: str) -> dict[str, str|None] | None:
 
     except Exception as e:
         print(e)
-        print("auth bind error")
         return None
 
 
