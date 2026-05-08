@@ -16,5 +16,5 @@ COPY src/ .
 
 RUN uv sync --frozen
 
-CMD ["uv", "run", "streamlit", "run", "main.py"]
+CMD ["./entrypoint.sh"]
 

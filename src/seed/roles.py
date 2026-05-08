@@ -4,17 +4,17 @@ from models.role import Role
 from seed.engine import engine
 
 Session = sessionmaker(bind=engine)
-session = Session()
 
 def create_roles():
-    student = Role(name="student")
-    teacher = Role(name="teacher")
-    secretary = Role(name="secretary")
-    program_director = Role(name="program director")
+    with Session() as s:
+        student = Role(name="student")
+        teacher = Role(name="teacher")
+        secretary = Role(name="secretary")
+        program_director = Role(name="program director")
 
-    session.add(student)
-    session.add(teacher)
-    session.add(secretary)
-    session.add(program_director)
+        s.add(student)
+        s.add(teacher)
+        s.add(secretary)
+        s.add(program_director)
 
-    session.commit()
+        s.commit()

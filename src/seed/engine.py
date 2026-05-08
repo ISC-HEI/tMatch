@@ -1,4 +1,5 @@
 
 from sqlalchemy import create_engine
+from config import DATABASE_URL
 
-engine = create_engine("postgresql+psycopg://postgres:postgres@localhost/tmatch_db")
+engine = create_engine(DATABASE_URL)
