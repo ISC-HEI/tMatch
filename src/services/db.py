@@ -4,7 +4,6 @@ from sqlalchemy import create_engine, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import sessionmaker
 import streamlit as st
-from streamlit.connections import SQLConnection
 
 from config import DATABASE_URL
 from models.auth_token import AuthToken
@@ -20,19 +19,16 @@ from sqlalchemy import delete
 from models.keyword import Keyword
 from models.projects_keyword import ProjectsKeyword
 
+@st.cache_resource
+def get_session_factory():
+    engine = create_engine(DATABASE_URL)
+    return sessionmaker(bind=engine)
 
 class Db:
     """Database service class for CRUD operations."""
 
-    _conn: SQLConnection
-
     def __init__(self) -> None:
-        self._conn = self._get_session_factory()
-
-    @st.cache_resource
-    def _get_session_factory():
-        engine = create_engine(DATABASE_URL)
-        return sessionmaker(bind=engine)
+        self._session_factory = get_session_factory()
 
     def create_project(self, created_by: int, teacher_id: int, title: str, description: str, specifications: str, program_id: int) -> Project | None:
         """Create a new project in the database.
@@ -49,7 +45,7 @@ class Db:
             The created Project object, or None if a database integrity error occurs.
         """
 
-        with self._conn.session as s:
+        with self._session_factory() as s:
             project = Project(
                 created_by=created_by,
                 teacher_id=teacher_id,
@@ -80,7 +76,7 @@ class Db:
             The created Session object.
         """
 
-        with self._conn.session as s:
+        with self._session_factory() as s:
             session = Session(
                 user_id=user_id,
                 expires_at=datetime.now(timezone.utc) + timedelta(days=7),
@@ -102,7 +98,7 @@ class Db:
             The created AuthToken object.
         """
 
-        with self._conn.session as s:
+        with self._session_factory() as s:
             auth_token = AuthToken(
                 user_id=user_id,
                 expires_at=datetime.now(timezone.utc) + timedelta(seconds=30),
@@ -129,7 +125,7 @@ class Db:
             The created or updated ProjectRating object.
         """
 
-        with self._conn.session as s:
+        with self._session_factory() as s:
             existing = s.execute(
                 select(ProjectRating)
                 .where(ProjectRating.student_id == student_id)
@@ -163,7 +159,7 @@ class Db:
             student_id: ID of the student to assign the project to.
         """
 
-        with self._conn.session as s:
+        with self._session_factory() as s:
             project = s.execute(
                 select(Project).where(Project.id == project_id)
             ).scalar_one()
@@ -185,7 +181,7 @@ class Db:
             The ProjectRating object, or None if not found.
         """
 
-        with self._conn.session as s:
+        with self._session_factory() as s:
             return s.execute(select(ProjectRating)
                 .where(ProjectRating.student_id == student_id)
                 .where(ProjectRating.project_id == project_id)
@@ -201,7 +197,7 @@ class Db:
             Sequence of all ProjectRating objects for the program.
         """
 
-        with self._conn.session as s:
+        with self._session_factory() as s:
             return (
                 s.execute(
                     select(ProjectRating)
@@ -222,7 +218,7 @@ class Db:
             Sequence of all Project objects for the program.
         """
 
-        with self._conn.session as s:
+        with self._session_factory() as s:
             return (
                 s.execute(
                     select(Project)
@@ -243,7 +239,7 @@ class Db:
             Sequence of all User objects with teacher role in the program.
         """
 
-        with self._conn.session as s:
+        with self._session_factory() as s:
             return (
                 s.execute(
                     select(User)
@@ -268,7 +264,7 @@ class Db:
             Sequence of all User objects with student role in the program.
         """
 
-        with self._conn.session as s:
+        with self._session_factory() as s:
             return (
                 s.execute(
                     select(User)
@@ -290,7 +286,7 @@ class Db:
             Sequence of all Keyword objects.
         """
 
-        with self._conn.session as s:
+        with self._session_factory() as s:
             return s.execute(select(Keyword)).scalars().all()
 
     def update_project_keywords(self, project_id: int, keyword_ids: list[int]) -> None:
@@ -301,7 +297,7 @@ class Db:
             keyword_ids: List of keyword IDs to associate with the project.
         """
 
-        with self._conn.session as s:
+        with self._session_factory() as s:
             s.execute(
                 delete(ProjectsKeyword)
                 .where(ProjectsKeyword.project_id == project_id)
@@ -317,7 +313,7 @@ class Db:
             Sequence of all User objects.
         """
 
-        with self._conn.session as s:
+        with self._session_factory() as s:
             return (
                 s.execute(
                     select(User)
@@ -336,7 +332,7 @@ class Db:
             Sequence of all Program objects.
         """
 
-        with self._conn.session as s:
+        with self._session_factory() as s:
             return s.execute(select(Program)).scalars().all()
 
     def get_roles(self) -> Sequence[Role]:
@@ -346,7 +342,7 @@ class Db:
             Sequence of all Role objects.
         """
 
-        with self._conn.session as s:
+        with self._session_factory() as s:
             return s.execute(select(Role)).scalars().all()
 
     def update_user_role(self, user_id: int, program_id: int, role_name: str) -> None:
@@ -358,7 +354,7 @@ class Db:
             role_name: Name of the role to assign.
         """
 
-        with self._conn.session as s:
+        with self._session_factory() as s:
             role = s.execute(
                 select(Role).where(Role.name == role_name)
             ).scalar_one_or_none()
@@ -386,7 +382,7 @@ class Db:
             The User object (existing or newly created).
         """
 
-        with self._conn.session as s:
+        with self._session_factory() as s:
             user = s.execute(
                 select(User).where(User.ldap_uid == uid)
             ).scalar_one_or_none()
@@ -411,7 +407,7 @@ class Db:
             The Project object, or None if not found.
         """
 
-        with self._conn.session as s:
+        with self._session_factory() as s:
             return s.execute(
                 select(Project).where(Project.id == project_id)
             ).scalar_one_or_none()
@@ -426,7 +422,7 @@ class Db:
             The Session object, or None if not found.
         """
 
-        with self._conn.session as s:
+        with self._session_factory() as s:
             return s.execute(
                 select(Session).where(Session.id == sid)
             ).scalar_one_or_none()
@@ -441,7 +437,7 @@ class Db:
             The AuthToken object, or None if not found.
         """
 
-        with self._conn.session as s:
+        with self._session_factory() as s:
             return s.execute(
                 select(AuthToken).where(AuthToken.id == token_id)
             ).scalar_one_or_none()
@@ -456,7 +452,7 @@ class Db:
             The Program object, or None if not found.
         """
 
-        with self._conn.session as s:
+        with self._session_factory() as s:
             return s.execute(
                 select(Program).where(Program.id == program_id)
             ).scalar_one_or_none()
@@ -474,7 +470,7 @@ class Db:
             The updated Project object, or None if not found or on integrity error.
         """
 
-        with self._conn.session as s:
+        with self._session_factory() as s:
             project = s.execute(
                 select(Project).where(Project.id == project_id)
             ).scalar_one_or_none()
@@ -501,7 +497,7 @@ class Db:
             Cascade behavior depends on the model configuration.
         """
 
-        with self._conn.session as s:
+        with self._session_factory() as s:
             s.delete(model)
             s.commit()
 
