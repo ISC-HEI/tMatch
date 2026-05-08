@@ -1,4 +1,6 @@
 
+.env
+srv/
 certs/
 src/**/__pycache__
 src/specs/*

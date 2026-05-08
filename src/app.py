@@ -2,7 +2,7 @@
 import streamlit as st
 from services.auth import validate_session
 from services.db import get_db
-from utils.nav import PAGE_ROLES, PAGE_CONFIG, allowed, landing_page, login_page
+from utils.nav import PAGE_ROLES, PAGE_CONFIG, allowed, projects_page, login_page
 
 st.session_state.session = validate_session()
 
@@ -50,15 +50,15 @@ if session and user:
         st.session_state.program_id = program_id
 
     if len(roles) == 0:
-        page_list = [landing_page]
+        page_list = [projects_page]
     else:
-        page_list = [landing_page] + [
+        page_list = [
             PAGE_CONFIG[page_name]
             for page_name, allowed_roles in PAGE_ROLES.items()
             if allowed(roles, allowed_roles)
         ]
         if not page_list:
-            page_list = [landing_page]
+            page_list = [projects_page]
 
 else:
     page_list = [login_page]

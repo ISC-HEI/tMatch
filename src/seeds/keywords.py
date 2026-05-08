@@ -1,10 +1,9 @@
 from sqlalchemy.orm import sessionmaker
 
 from models.keyword import Keyword
-from seed.engine import engine
+from seeds.engine import engine
 
 Session = sessionmaker(bind=engine)
-session = Session()
 
 def create_keywords():
     keywords = [
@@ -86,8 +85,10 @@ def create_keywords():
         "forecasting",
     ]
 
-    for i in range(len(keywords)):
-        new_keyword = Keyword(name=keywords[i])
+    with Session() as s:
+        for i in range(len(keywords)):
+            new_keyword = Keyword(name=keywords[i])
 
-        session.add(new_keyword)
-        session.commit()
+            s.add(new_keyword)
+
+        s.commit()

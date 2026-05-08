@@ -1,9 +1,9 @@
 
-import streamlit as st
+from config import LDAP_BASE_DN, LDAP_HOST, LDAP_PASSWORD, LDAP_PORT, LDAP_USER
 from ldap3 import Entry, Server, Connection, ALL
 
 def _get_server():
-    return Server(st.secrets.ldap.ldaphost, port=int(st.secrets.ldap.ldapport), use_ssl=True, get_info=ALL)
+    return Server(LDAP_HOST, port=int(LDAP_PORT), use_ssl=True, get_info=ALL)
 
 
 def _search_user(uid: str, attributes: list[str]) -> Entry | None:
@@ -21,13 +21,14 @@ def _search_user(uid: str, attributes: list[str]) -> Entry | None:
         return None
     try:
         server = _get_server()
-        conn = Connection(server, user=st.secrets.ldap.ldapaccount, password=st.secrets.ldap.ldappassword, auto_bind=True)
-        conn.search(st.secrets.ldap.ldapbasedn, f"(uid={uid})", "SUBTREE", attributes=attributes)
+        conn = Connection(server, user=LDAP_USER, password=LDAP_PASSWORD, auto_bind=True)
+        conn.search(LDAP_BASE_DN, f"(uid={uid})", "SUBTREE", attributes=attributes)
         entry = conn.entries[0] if conn.entries else None
         conn.unbind()
         return entry
     except Exception as e:
         print(e)
+        print("search bind error")
         return None
 
 
@@ -69,6 +70,7 @@ def authenticate(uid: str, password: str) -> dict[str, str|None] | None:
 
     except Exception as e:
         print(e)
+        print("auth bind error")
         return None
 
 

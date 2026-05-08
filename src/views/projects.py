@@ -63,17 +63,20 @@ def render_for_others():
 
     st.divider()
 
-    cols = st.columns([4, 0.8])
+    cols = st.columns([4, 3, 4, 1.5])
     cols[0].markdown("**Project**")
-
+    cols[1].markdown("**Teacher**")
     st.divider()
 
     for project in projects:
         pid = project.id
-        cols = st.columns([4, 0.8])
-        cols[0].write(project.title)
 
-        if cols[1].button("Open", key=f"open_{pid}"):
+        cols = st.columns([4, 3, 4, 1.5])
+        cols[0].write(project.title)
+        cols[1].write(project.teacher.ldap_uid)
+
+        
+        if cols[2].button("Detail", key=f"detail_{pid}"):
             st.session_state.selected_project = project.id
             st.switch_page(project_detail_page)
         

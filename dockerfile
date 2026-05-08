@@ -12,9 +12,12 @@ WORKDIR /app
 COPY src/pyproject.toml src/uv.lock .
 RUN uv sync --frozen --no-install-project
 
-COPY src/* .
+COPY src/ .
 
 RUN uv sync --frozen
 
-CMD ["uv", "run", "streamlit", "run", "main.py"]
+COPY entrypoint.sh ./
+RUN chmod +x entrypoint.sh
+
+CMD ["sh", "./entrypoint.sh"]
 
