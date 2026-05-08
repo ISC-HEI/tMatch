@@ -5,9 +5,9 @@ import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 import ssl
-import streamlit as st
 from jinja2 import Environment, FileSystemLoader
 
+from config import SMTP_PASSWORD, SMTP_SERVER, SMTP_PORT, SMTP_USER
 from models.project import Project
 from models.user import User
 from services.db import Db, get_db
@@ -34,11 +34,11 @@ class Mailer:
     _sender: str
 
     def __init__(self) -> None:
-        self._server = st.secrets.mailer.smtpserver
-        self._port = st.secrets.mailer.smtpserverport
-        self._username = st.secrets.mailer.smtpusername
-        self._password = st.secrets.mailer.smtppassword
-        self._sender = st.secrets.mailer.sender
+        self._server = SMTP_SERVER
+        self._port = SMTP_PORT 
+        self._username = SMTP_USER 
+        self._password = SMTP_PASSWORD 
+        self._sender = SMTP_USER 
 
     def project_supervision(self, project: Project):
         """Notify a teacher that a project has been assigned to them.
