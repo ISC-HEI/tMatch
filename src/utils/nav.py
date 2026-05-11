@@ -19,7 +19,6 @@ PAGE_CONFIG = {
 PAGE_ROLES = {
     "manage_projects": ["secretary", "teacher"],
     "project_detail": ["program director", "secretary", "teacher", "student"],
-    "projects": ["program director", "secretary", "teacher", "student"],
     "assigned_project": ["student"]
 }
 
@@ -54,7 +53,7 @@ def protect(page_name: str):
 
     roles = user.get_roles(st.session_state.program_id)
 
-    if page_name == "landing":
+    if page_name == "projects":
         return
 
     allowed_roles = PAGE_ROLES.get(page_name, [])
