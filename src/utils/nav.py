@@ -3,7 +3,7 @@ import streamlit as st
 
 from models.role import Role
 
-login_page = st.Page("views/login.py", title="Login", default=True)
+login_page = st.Page("views/login.py", title="Login")
 manage_projects_page = st.Page("views/manage_projects.py", title="Manage Projects")
 project_detail_page = st.Page("views/project_detail.py", title="View Project Details", visibility="hidden")
 projects_page = st.Page("views/projects.py", title="View Projects List")
