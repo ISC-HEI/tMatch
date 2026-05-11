@@ -6,6 +6,7 @@ from models.project import Project
 from services.db import get_db
 from services.mail import Mailer
 from utils.nav import allowed, projects_page, protect
+from utils.logger import logger
 
 protect("project_detail")
 
@@ -113,11 +114,13 @@ if st.session_state.edit_project:
             if st.form_submit_button("Save"):
                 result = db.update_project(project.id, title, description, teacher_id)
                 if result:
+                    logger.info(f"Project updated: {project.id}")
                     db.update_project_keywords(project.id, st.session_state[edit_key])
                     del st.session_state[edit_key]
                     st.session_state.edit_project = False
                     st.rerun()
                 else:
+                    logger.warn(f"Project update failed: {project.id} - title may already exist")
                     st.error("Failed to update project. Title may already exist.")
 
             st.space("stretch")
@@ -133,6 +136,7 @@ if st.session_state.confirm_delete:
 
     with st.container(horizontal=True):
         if st.button("Confirm Delete", type="primary"):
+            logger.info(f"Project deleted: {project.id}")
             db.remove(project)
             st.session_state.confirm_delete = False
             st.switch_page(projects_page)

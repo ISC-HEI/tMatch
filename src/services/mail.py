@@ -8,6 +8,7 @@ import ssl
 from jinja2 import Environment, FileSystemLoader
 
 from config import SMTP_PASSWORD, SMTP_SERVER, SMTP_PORT, SMTP_USERNAME
+from utils.logger import logger
 from models.project import Project
 from models.user import User
 from services.db import Db, get_db
@@ -307,8 +308,11 @@ class Mailer:
         context = ssl.create_default_context()
         context.minimum_version = ssl.TLSVersion.TLSv1_3
 
-        with smtplib.SMTP(self._server, self._port, timeout=10) as smtp:
-            smtp.starttls(context=context)
-            smtp.login(self._username, self._password)
+        try:
+            with smtplib.SMTP(self._server, self._port, timeout=10) as smtp:
+                smtp.starttls(context=context)
+                smtp.login(self._username, self._password)
 
-            smtp.sendmail(self._sender, all_recipents, msg.as_string())
+                smtp.sendmail(self._sender, all_recipents, msg.as_string())
+        except Exception as e:
+            logger.error(f"Failed to send email to {all_recipents}: {e}")

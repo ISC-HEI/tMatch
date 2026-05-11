@@ -5,3 +5,4 @@ certs/
 src/**/__pycache__
 src/specs/*
 src/.streamlit/secrets.toml
+src/logs/

@@ -6,6 +6,7 @@ from models.session import Session
 from models.user import User
 from services.db import get_db
 from services.ldap import authenticate
+from utils.logger import logger
 
 db = get_db()
 
@@ -27,6 +28,7 @@ def logout(session: Session) -> None:
     """
 
     db.remove(session)
+    logger.info(f"User logged out: {session.user.ldap_uid}")
 
 
 def login(uid: str, password: str) -> User|None:
@@ -43,11 +45,14 @@ def login(uid: str, password: str) -> User|None:
     user_infos = authenticate(uid, password)
 
     if user_infos is None or user_infos["uid"] is None:
+        logger.warn(f"Login failed for user: {uid}")
         return None
 
     user = db.get_user(user_infos["uid"])
-    
+
     create_session(user)
+
+    logger.info(f"User logged in: {uid}")
 
     return user
 
@@ -70,6 +75,7 @@ def validate_session() -> Session|None:
         return None
 
     if session.expires_at < datetime.now(timezone.utc):
+        logger.info(f"Session expired, removed for user: {session.user.ldap_uid}")
         db.remove(session)
         return None
 

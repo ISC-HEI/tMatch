@@ -2,6 +2,7 @@
 import streamlit as st
 
 from models.role import Role
+from utils.logger import logger
 
 login_page = st.Page("views/login.py", title="Login")
 manage_projects_page = st.Page("views/manage_projects.py", title="Manage Projects")
@@ -58,4 +59,5 @@ def protect(page_name: str):
 
     allowed_roles = PAGE_ROLES.get(page_name, [])
     if not allowed(roles, allowed_roles):
+        logger.warn(f"Access denied to {page_name} for user: {user.ldap_uid}")
         st.switch_page(projects_page)
