@@ -19,7 +19,7 @@ PAGE_CONFIG = {
 PAGE_ROLES = {
     "manage_projects": ["secretary", "teacher"],
     "project_detail": ["program director", "secretary", "teacher", "student"],
-    "assigned_project": ["student"]
+    "assigned_project": ["student", "program director"]
 }
 
 def allowed(roles: list[Role], allowed_roles: list[str]):
