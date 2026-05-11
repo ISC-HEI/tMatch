@@ -76,7 +76,9 @@ def assign_projects(program_id: int, project_ratings: Sequence[ProjectRating], d
 
         db.assign_project(project_id, student_id)
 
-    logger.info(f"Assignment complete for program {project_ratings[0].project.program.name}, emails sent")
+    if len(project_ratings) > 0:
+        logger.info(f"Assignment complete for program {project_ratings[0].project.program.name}, emails sent")
+
     mailer.project_assignment(program_id)
 
 def remind_students(students: Sequence[User], n_projects: int, mailer: Mailer):
