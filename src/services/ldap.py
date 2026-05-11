@@ -1,6 +1,7 @@
 
 from config import LDAP_BASE_DN, LDAP_HOST, LDAP_PASSWORD, LDAP_PORT, LDAP_USER
 from ldap3 import Entry, Server, Connection, ALL
+from utils.logger import logger
 
 def _get_server():
     return Server(LDAP_HOST, port=int(LDAP_PORT), use_ssl=True, get_info=ALL)
@@ -27,8 +28,7 @@ def _search_user(uid: str, attributes: list[str]) -> Entry | None:
         conn.unbind()
         return entry
     except Exception as e:
-        print(e)
-        print("search bind error")
+        logger.error(f"LDAP search error: {e}")
         return None
 
 
@@ -69,8 +69,7 @@ def authenticate(uid: str, password: str) -> dict[str, str|None] | None:
         return user_info
 
     except Exception as e:
-        print(e)
-        print("auth bind error")
+        logger.error(f"LDAP auth error for {uid}: {e}")
         return None
 
 

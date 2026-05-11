@@ -9,6 +9,7 @@ from services.db import get_db, Db
 from scipy.optimize import linear_sum_assignment
 
 from services.mail import Mailer
+from utils.logger import logger
 
 def assignment_algorithm(project_ratings: Sequence[ProjectRating], student_ids: list[int], project_ids: list[int]) -> tuple[list[int], list[int]] :
     """Assignment algorithm.
@@ -75,6 +76,7 @@ def assign_projects(program_id: int, project_ratings: Sequence[ProjectRating], d
 
         db.assign_project(project_id, student_id)
 
+    logger.info(f"Assignment complete for program {project_ratings[0].project.program.name}, emails sent")
     mailer.project_assignment(program_id)
 
 def remind_students(students: Sequence[User], n_projects: int, mailer: Mailer):
@@ -94,7 +96,9 @@ def remind_students(students: Sequence[User], n_projects: int, mailer: Mailer):
         if len(student.project_ratings) != n_projects:
             students_to_remind.append(student)
 
+    if students_to_remind:
         mailer.students_reminder(students_to_remind, urgent=True)
+        logger.info(f"Sent reminders to {len(students_to_remind)} students")
 
 
 def start_assignment(program_id: int):
