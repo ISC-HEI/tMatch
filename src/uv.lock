@@ -1317,17 +1317,6 @@ wheels = [
 ]
 
 [[package]]
-name = "st-star-rating"
-version = "0.0.6"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "streamlit" },
-]
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/4d/08/0202a7f9383f32ddc55f1b1acd62a30998cd5fb7349bc44d2c8cb53b7038/st_star_rating-0.0.6-py3-none-any.whl", hash = "sha256:238e31d531df34a8e15eebb348cbed953c9c1689889233457c8e67846b073d79", size = 1164052, upload-time = "2023-10-16T15:08:52.786Z" },
-]
-
-[[package]]
 name = "starlette"
 version = "1.0.0"
 source = { registry = "https://pypi.org/simple" }
@@ -1401,7 +1390,6 @@ dependencies = [
     { name = "pyyaml" },
     { name = "scipy" },
     { name = "sqlalchemy" },
-    { name = "st-star-rating" },
     { name = "starlette", extra = ["full"] },
     { name = "streamlit" },
     { name = "types-ldap3" },
@@ -1419,7 +1407,6 @@ requires-dist = [
     { name = "pyyaml", specifier = ">=6.0.3" },
     { name = "scipy", specifier = ">=1.17.1" },
     { name = "sqlalchemy", specifier = ">=2.0.48" },
-    { name = "st-star-rating", specifier = ">=0.0.6" },
     { name = "starlette", extras = ["full"], specifier = ">=1.0.0" },
     { name = "streamlit", specifier = ">=1.55.0" },
     { name = "types-ldap3", specifier = ">=2.9.13.20260319" },
