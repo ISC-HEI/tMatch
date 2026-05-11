@@ -1,10 +1,17 @@
 from unittest.mock import patch, MagicMock
+import pytest
 import numpy as np
 from utils.assignment import (
     assignment_algorithm,
     assign_projects,
     start_assignment,
 )
+
+
+@pytest.fixture(autouse=True)
+def mock_logger():
+    with patch("utils.assignment.logger") as mock:
+        yield mock
 
 
 class TestAssignmentAlgorithm:

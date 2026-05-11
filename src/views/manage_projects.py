@@ -5,6 +5,7 @@ import yaml
 from services.db import get_db
 from services.mail import Mailer
 from utils.nav import protect
+from utils.logger import logger
 
 protect("manage_projects")
 
@@ -74,11 +75,13 @@ with st.form("add_form"):
             project = db.create_project(st.session_state.user.id, teacher_id, project_dict["title"], project_dict["description"], f"specs/{specs.name}", st.session_state.program_id)
 
             if project:
+                logger.info(f"Project created: {project_dict['title']}")
                 st.success("Project created successfully !")
                 mailer = Mailer()
                 mailer.project_creation(project)
 
             else:
+                logger.warn(f"Project creation failed: {project_dict['title']}")
                 st.error("Project already exists !")
 
     elif sb and mode == "manual" and specs is not None and description != "" and title != "":
@@ -96,11 +99,13 @@ with st.form("add_form"):
         )
 
         if project:
+            logger.info(f"Project created: {title}")
             st.success("Project created successfully !")
             mailer = Mailer()
             mailer.project_creation(project)
 
         else:
+            logger.warn(f"Project creation failed: {title}")
             st.error("Project already exists !")
 
     elif sb and mode == "manual" and ( specs is None or description == "" or title == "" ):

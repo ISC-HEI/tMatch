@@ -1,10 +1,17 @@
 from unittest.mock import patch, MagicMock
+import pytest
 from services.ldap import (
     _get_server,
     _search_user,
     authenticate,
     get_email_by_uid,
 )
+
+
+@pytest.fixture(autouse=True)
+def mock_logger():
+    with patch("services.ldap.logger") as mock:
+        yield mock
 
 
 class TestSearchUser:
